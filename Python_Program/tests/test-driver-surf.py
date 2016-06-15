@@ -1,13 +1,13 @@
 """
 Driver  for the EI algorithm developed in the pareto class,
 to test the various cases for a test case.
-This driver has two objectives and six design parameters. 
+This driver has two objectives and six design parameters.
 
-Authors:  
+Authors:
 
 Date : October 1,  2015
 """
- 
+
 import matplotlib
 matplotlib.use('PS')
 import numpy as np
@@ -16,10 +16,10 @@ import design
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-import fem_wire_problem
-from matplot import * # MATPLOT GOES BEFORE ANYTHING ELSE
+#import fem_wire_problem
+#from matplot import * # MATPLOT GOES BEFORE ANYTHING ELSE
 from pydes import *
-import test_functions
+#import test_functions
 from mpl_toolkits.mplot3d import Axes3D
 from math import *
 import math
@@ -41,7 +41,7 @@ class ObjFunc(object):
             b2 = 15. * x1[1]
             k = (b2 - 5.1 / 4. / math.pi ** 2 * b1 ** 2 + 5. / math.pi * b1 - 6.) ** 2. \
             + 10. * ((1. - 1. / 8. / math.pi) * math.cos(b1) + 1.)
-            y = y + k    
+            y = y + k
         return float(y)/self.n_samp
 
     def f2(self,x):
@@ -58,17 +58,17 @@ class ObjFunc(object):
             y = y + k
         return float(y)/self.n_samp
 
-    def __init__(self,sigma=0.,n_samp=1.): 
+    def __init__(self,sigma=0.,n_samp=1.):
         self.n_samp = n_samp
         self.sigma = sigma
-        
+
     def __call__(self,x):
         return self.f1(x), self.f2(x)
 
 
 if __name__ == '__main__':
 
-    #The following three lines are useful only if the code is being used to 
+    #The following three lines are useful only if the code is being used to
     #solve a known problem, like the above.
 
     #assert len(sys.argv)==3
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     #ObjFunc_noise = ObjFunc(noise,1)
     #ObjFunc_true = ObjFunc(noise,100)
-    
+
     # The noisy objective function `dtlz1a`.
     # def obj_funcs_noise(x1):
     #     return ObjFunc_noise.__call__(x1)
@@ -90,13 +90,13 @@ if __name__ == '__main__':
     if os.path.isdir(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
-    
+
     X_init = input('Enter the observed inputs')
     Y_init = input ('Enter the observed outputs')
-    
+
     X_init = np.array(X_init)
     Y_init = np.array(Y_init)
-    
+
     a = input('Enter the lower bounds of the inputs')
     b = input('Enter the upper bounds of the inputs')
     a = np.array(a)
@@ -115,5 +115,5 @@ if __name__ == '__main__':
                          gp_fixed_noise=None,
                          samp=1000,
                          denoised=None
-                         )     
+                         )
     pareto.optimize()

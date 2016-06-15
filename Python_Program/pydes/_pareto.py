@@ -8,7 +8,7 @@ import numpy as np
 import scipy.stats
 from scipy.stats import norm
 import design
-import fem_wire_problem
+#import fem_wire_problem
 from . import mrange
 import GPy
 import copy
@@ -134,7 +134,7 @@ def write_input_file(in_file,x,samples,out_file_name):
     writes the input parallel code using mpi4py.
     """
     with open(in_file,'w') as fd:
-        fd.write("""   
+        fd.write("""
 import os
 import sys
 import copy
@@ -159,7 +159,7 @@ class ObjFunc(object):
             b2 = 15. * x1[1]
             k = (b2 - 5.1 / 4. / math.pi ** 2 * b1 ** 2 + 5. / math.pi * b1 - 6.) ** 2. \
             + 10. * ((1. - 1. / 8. / math.pi) * math.cos(b1) + 1.)
-            y = y + k    
+            y = y + k
         return float(y)/self.n_samp
 
     def f2(self,x):
@@ -178,7 +178,7 @@ class ObjFunc(object):
             y = y + k
         return float(y)/self.n_samp
 
-    def __init__(self,sigma1=0.,sigma2=0.,n_samp=1.): 
+    def __init__(self,sigma1=0.,sigma2=0.,n_samp=1.):
         self.n_samp = n_samp
         self.sigma1 = sigma1
         self.sigma2 = sigma2
@@ -195,7 +195,7 @@ if rank == 0:       # This guy is known as the root
     print '=' * 80
     print 'Number of processors available:', size
 # Wait for the root to print this message
-mpi.COMM_WORLD.barrier()   
+mpi.COMM_WORLD.barrier()
 my_num_samples = {0:d}/size
 mpi.COMM_WORLD.barrier()
 if rank == 0:
@@ -229,7 +229,7 @@ def read_output(out_file):
     y = np.load(out_file)
     return y
 
-    
+
 def compute_samp_avg(x,samples=20):
     """
     This method writes the file , runs the parallel code, reads the output.
@@ -299,7 +299,7 @@ class ParetoFront(object):
         """
         return self.Y_p[self.idx, :]
 
-    @property 
+    @property
     def X_pareto(self):
         """
         :getter: The design points on the Pareto front.
@@ -352,7 +352,7 @@ class ParetoFront(object):
         """
         A generator of active cells.
 
-        A cell is active if the points that it contains dominate atleast 
+        A cell is active if the points that it contains dominate atleast
         one point in the pareto frontier.
         """
         k = self.num_pareto
@@ -376,7 +376,7 @@ class ParetoFront(object):
     @property
     def hypervolume_cells(self):
         """
-        A generator of the cells that lie in the dominated hypervolume of the 
+        A generator of the cells that lie in the dominated hypervolume of the
         pareto frontier.
         """
         k = self.num_pareto
@@ -385,7 +385,7 @@ class ParetoFront(object):
             if  is_dominated_lplus(l,self.Y_pareto):
                 yield l, self.u(i), i
 
-    @property            
+    @property
     def s_minus_cells(self):
         """
         A generator of the cells that form the s_minus_cells.
@@ -531,7 +531,7 @@ class ParetoFront(object):
         self.get_fig = get_fig
         self.fig_prefix = fig_prefix
         self.Y_true_pareto = Y_true_pareto
-        
+
 
     @property
     def surrogates(self):
@@ -661,8 +661,8 @@ class ParetoFront(object):
     def _find_v(self, i):
         """
         Find the vector v, required in Eq. (8) by following the recipe described
-        in the text: 
-        
+        in the text:
+
         "We can construct the j-th coordinate of v as follows by finding the
         first vector in the sequence l(i1,...,ij, ..., im), l(i1,...,ij+1,...,im)
         which does not strictly dominate some point of P.
@@ -679,7 +679,7 @@ class ParetoFront(object):
                     v[j] = l[j]
                     break
         return v
-    
+
     def _compute_volume_of_S_minus(self, u, v):
         """
         Compute the volume of the set S minus as defined in Fig. 3.
@@ -784,7 +784,7 @@ class ParetoFront(object):
             # Are we drawing new design points or not?
             if isinstance(self.X_design, int):
                 num_design = self.X_design
-                X_design = design.latin_center(num_design, self.num_dim)   
+                X_design = design.latin_center(num_design, self.num_dim)
             else:
                 X_design = self.X_design
             if self.verbose:
