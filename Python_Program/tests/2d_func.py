@@ -9,10 +9,10 @@ import design
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-import fem_wire_problem
+
 from matplot import * # MATPLOT GOES BEFORE ANYTHING ELSE
 from pydes import *
-import test_functions
+
 from mpl_toolkits.mplot3d import Axes3D
 from math import *
 import math
