@@ -29,6 +29,7 @@ import shutil
 
 #My imports
 import pickle as pkl
+import dill
 
 np.random.seed(123456)
 

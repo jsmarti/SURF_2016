@@ -496,6 +496,8 @@ class ParetoFront(object):
 
         #Current iteration of the optimization process
         self.current_iteration = 0
+        #State variable
+        self.waiting_results = False
         assert X.ndim == 2
         self.X = X
         assert Y.ndim == 2
@@ -768,7 +770,7 @@ class ParetoFront(object):
         ax.set_xlabel('Objective 1',fontsize=14)
         ax.set_ylabel('Objective 2',fontsize=14)
         figname = self.fig_prefix + '_' + str(it).zfill(len(str(self.max_it))) \
-                  + '.pdf'
+                  + '.png'
         if self.verbose:
             print '\t> writing:', figname
         fig.savefig(figname)
@@ -1014,13 +1016,15 @@ class ParetoFront(object):
         '''Optimization process ending the execution
         at experiment proposal
         '''
-        if self.current_iteration == 0:
+        if self.current_iteration == 0 and not self.waiting_results:
             self.ei_values = []
             self.propose_experiment_paused(self.current_iteration)
+            self.waiting_results = True
         elif self.current_iteration == self.max_it:
             print 'Execution finished'
-        else:
+        elif self.current_iteration > 0 or self.waiting_results:
             y = input('Enter the observed value at the new design')
             self.learn(y, self.X_design_paused, self.i_paused, self.current_iteration)
             self.current_iteration += 1
+            self.waiting_results = False
             self.propose_experiment_paused(self.current_iteration)
