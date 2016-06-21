@@ -1020,7 +1020,7 @@ class ParetoFront(object):
             self.ei_values = []
             self.propose_experiment_paused(self.current_iteration)
             self.waiting_results = True
-        elif self.current_iteration == self.max_it:
+        elif self.current_iteration == self.max_it + 1:
             print 'Execution finished'
         elif self.current_iteration > 0 or self.waiting_results:
             y = input('Enter the observed value at the new design')
