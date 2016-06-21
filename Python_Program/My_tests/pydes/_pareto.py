@@ -945,6 +945,8 @@ class ParetoFront(object):
         #self.Y_true_noiseless = np.array([self.obj_funcs_true(x) for x in self.X])
         if self.verbose:
             print '\t> done'
+            print '\t> Projected Y', self.Y_p
+            print '\t> X value', self.X_design[i, :]
         if not isinstance(self.X_design, int):
             self.X_design = np.delete(self.X_design, i, 0)
         if self.make_plots:
@@ -1020,7 +1022,7 @@ class ParetoFront(object):
             self.ei_values = []
             self.propose_experiment_paused(self.current_iteration)
             self.waiting_results = True
-        elif self.current_iteration == self.max_it + 1:
+        elif self.current_iteration == self.max_it:
             print 'Execution finished'
         elif self.current_iteration > 0 or self.waiting_results:
             y = input('Enter the observed value at the new design')
