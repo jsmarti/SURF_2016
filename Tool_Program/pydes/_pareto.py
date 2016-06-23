@@ -498,6 +498,8 @@ class ParetoFront(object):
         self.current_iteration = 0
         #State variable
         self.waiting_results = False
+        #Response string containing the proposed experiment
+        self.response = "Pareto object created"
         assert X.ndim == 2
         self.X = X
         assert Y.ndim == 2
@@ -1000,7 +1002,8 @@ class ParetoFront(object):
         #for lplus in lplus:
             #print lplus
         #y = self.obj_funcs(X_design[i,:])
-        print "Run the experiment/code at the following design"+str(X_design[i,:])
+        #print "Run the experiment/code at the following design"+str(X_design[i,:])
+        self.response = "Run the experiment/code at the following design"+str(X_design[i,:])
         self.X_design_paused = X_design
         self.i_paused = i
 
@@ -1014,7 +1017,7 @@ class ParetoFront(object):
             y, X_design, i = self.propose_experiment(it)
             self.learn(y, X_design, i, it)
 
-    def my_optimize_paused(self):
+    def my_optimize_paused(self, y = None):
         '''Optimization process ending the execution
         at experiment proposal
         '''
@@ -1025,8 +1028,23 @@ class ParetoFront(object):
         elif self.current_iteration == self.max_it:
             print 'Execution finished'
         elif self.current_iteration > 0 or self.waiting_results:
-            y = input('Enter the observed value at the new design')
             self.learn(y, self.X_design_paused, self.i_paused, self.current_iteration)
             self.current_iteration += 1
             self.waiting_results = False
             self.propose_experiment_paused(self.current_iteration)
+
+    #Methods for controlling the object status externally
+    def get_current_iteration(self):
+        return self.current_iteration
+    def get_waiting_results(self):
+        return self.waiting_results
+    def get_current_x_design(self):
+        return self.X_design_paused
+    def get_current_i(self):
+        return self.i_paused
+    def reset_ei_values(self):
+        self.ei_values = []
+    def set_waiting_results(self):
+        self.waiting_results = True
+    def clear_waiting_results(self):
+        self.waiting_results = True
