@@ -204,14 +204,16 @@ if not existing_model():
         a = np.array(a)
         b = np.array(b)
         X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
+        
         pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
         pareto_model.my_optimize_paused()
         new_design = pareto_model.get_response()
         model_file = open('model.obj','wb')
         pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
         model_file.close()
-#	else:
-#		new_design = 'Incorrect input tuples for new model'
+        
+	else:
+		new_design = 'Incorrect input tuples for new model'
 else:
 	if check_new_result():
 		model_file = open('model.obj','rb')
