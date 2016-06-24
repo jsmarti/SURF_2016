@@ -8,6 +8,7 @@ from test_object import Obj
 import pickle as pkl
 import base64
 from ast import literal_eval
+import os
 
 # uncomment these to redirect stdout and stderr
 # to files for debugging.
@@ -20,6 +21,114 @@ io = Rappture.PyXml(sys.argv[1])
 #########################################################
 # Get input values from Rappture
 #########################################################
+
+########################################################
+# My methods
+########################################################
+
+def check_observations():
+	'''
+	Check for all the input observations to be empty or to have the correct tuple
+	format
+	'''
+	global inputs, outputs, l_bounds, u_bounds, max_it
+	try:
+		check_inputs = inputs == '' or isinstance(literal_eval(inputs), tuple)
+		check_outputs = outputs == '' or isinstance(literal_eval(outputs), tuple)
+		check_l_bounds = l_bounds == '' or isinstance(literal_eval(l_bounds), tuple)
+		check_u_bounds = u_bounds == '' or isinstance(literal_eval(u_bounds), tuple)
+		check_max_it = max_it == '' or isinstance(literal_eval(max_it),int)
+
+		check = check_inputs and check_outputs and check_l_bounds and check_u_bounds and check_max_it
+		return check
+	except:
+		return False
+
+def check_new_result():
+	'''
+	Checks that the new result has the correct tuple format
+	'''
+	global new_result
+	try:
+		check = isinstance(literal_eval(new_result), tuple)
+		return check
+	except:
+		return False
+
+def existing_model():
+	'''Looks for a previous model'''
+	return os.path.isfile('model.obj')
+
+def get_model():
+	'''
+	Loads any previous model stored or creates a new model
+	'''
+	global inputs, outputs, l_bounds, u_bounds, max_it
+	try:
+		model_file = open('model.obj','rb')
+		pareto_model = pkl.load(model_file)
+		model_file.close()
+		return pareto_model
+	except IOError:
+		out_dir = 'surf_test_results_noisy_moo'
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
+        os.makedirs(out_dir)
+
+        X_init = literal_eval(inputs)
+        Y_init = literal_eval(outputs)
+
+        X_init = np.array(X_init)
+        Y_init = np.array(Y_init)
+
+        a = literal_eval(l_bounds)
+        b = literal_eval(u_bounds)
+        a = np.array(a)
+        b = np.array(b)
+        X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
+
+        pareto_model = ParetoFront(X_init, Y_init,
+                             X_design=X_design,
+                             gp_opt_num_restarts=50,
+                             verbose=False,
+                             max_it=literal_eval(max_it),
+                             make_plots=True,
+                             add_at_least=30,
+                             get_fig=get_full_fig,
+                             fig_prefix=os.path.join(out_dir,'ex1'),
+                             Y_true_pareto=None,
+                             gp_fixed_noise=None,
+                             samp=100,
+                             denoised=True
+                             )
+		return pareto_model
+
+def save_model(pareto_model):
+	'''
+	Saves the pareto model that represents the current state of the optimization
+	'''
+	model_file = open('model.obj','wb')
+	pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
+	pkl.close()
+
+def optimize(pareto_model):
+	'''
+	Main optimization algorithm using the pareto model
+	'''
+	global new_design, new_result
+	if pareto_model.get_current_iteration() == 0 and not pareto_model.get_waiting_results():
+		pareto_model.reset_ei_values()
+		pareto_model.propose_experiment_paused(pareto_model.get_current_iteration())
+		pareto_model.set_waiting_results()
+		new_design = pareto_model.get_response()
+	elif pareto_model.current_iteration() == pareto_model.get_max_iterations():
+		new_design = 'Execution finished'
+	elif pareto_model.get_current_iteration() > 0 or pareto_model.get_waiting_results():
+		pareto_model.learn(literal_eval(new_result), pareto_model.get_current_x_design(), pareto_model.get_current_i(), pareto_model.get_current_iteration())
+		pareto_model.increment_iterations()
+		pareto_model.clear_waiting_results()
+		pareto_model.propose_experiment_paused(pareto_model.current_iteration())
+		new_design = pareto_model.get_response()
 
 # get input value for input.phase(desc).note(note)
 note = io['input.phase(desc).note(note).current'].value
@@ -57,32 +166,27 @@ new_result = io['input.phase(iterative_run).string(new_result).current'].value
 #  Add your code here for the main body of your program
 #########################################################
 
-try:
-	f = open('model.obj','rb')
-	model = pkl.load(f)
-	f.close()
-	model.add(int(new_result))
-	x, y = model.get_data()
-	f = open('model.obj','wb')
-	pkl.dump(model,f,pkl.HIGHEST_PROTOCOL)
-	f.close()
-	new_design = 'Model loaded, data updated'
-	if isinstance(inputs,tuple):
-		new_design += ' , also, inputs are a tuple'
-	
-except IOError:
-	model = Obj()
-	model.add(int(new_result))
-	x, y = model.get_data()
-	f = open('model.obj','wb')
-	pkl.dump(model,f,pkl.HIGHEST_PROTOCOL)
-	f.close()
-	new_design = 'Model created, data updated'
-	if isinstance(literal_eval(inputs),tuple):
-		new_design += ' , also, inputs are a tuple'
-	
+#Check if the model was previously saved
+if not existing_model():
+	#For a new model, we have to check the observations' format
+	if check_observations():
+		pareto_model = get_model() #Creates a new model
+		optimize(pareto_model)
+		save_model(pareto_model)
+	else:
+		new_design = 'Incorrect input tuples for new model'
+else:
+	if check_new_result():
+		pareto_model = get_model() #Loads previous model
+		optimize(pareto_model)
+		save_model(pareto_model)
+	else:
+		new_design = 'Incorrect tuple for new result'
+
+#Pareto front
 with open('test_pareto.png','rb') as img:
 	imdata = base64.b64encode(img.read())
+
 
 # spit out progress messages as you go along...
 Rappture.Utils.progress(0, "Starting...")

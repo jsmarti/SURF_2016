@@ -1036,15 +1036,30 @@ class ParetoFront(object):
     #Methods for controlling the object status externally
     def get_current_iteration(self):
         return self.current_iteration
+
     def get_waiting_results(self):
         return self.waiting_results
+
     def get_current_x_design(self):
         return self.X_design_paused
+
     def get_current_i(self):
         return self.i_paused
+
+    def get_max_iterations(self):
+        return self.max_it
+
+    def get_response(self):
+        return self.response
+
     def reset_ei_values(self):
         self.ei_values = []
+
     def set_waiting_results(self):
         self.waiting_results = True
+
     def clear_waiting_results(self):
-        self.waiting_results = True
+        self.waiting_results = False
+
+    def increment_iterations(self):
+        self.current_iteration += 1
