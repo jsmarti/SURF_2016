@@ -5,8 +5,8 @@
 \usepackage[dvipsnames]{xcolor}
 \setmainfont{Arial}
 
-\hyphenpenalty=10000
-\hbadness=10000
+\hyphenpenalty=100000
+\hbadness=100000
 \setlength{\parindent}{0pt}
 
 \begin{document}
@@ -26,12 +26,14 @@ Department of Electrical and Electronic Engineering, Universidad de los Andes\\
 \end{center}
 {\large \textbf{ABSTRACT}\\}
 
-{\normalsize \textcolor{ForestGreen}{Optimization under uncertainty of multi-objective systems is a common goal in many engineering and science problems, where the main objective is to find the values of input variables that maximize or minimize multiple outputs. }\textcolor{red}{These optimization processes are often tied to epistemic uncertainty (lack of knowledge due to limited data), as the systems to be analyzed correspond to expensive experiments or code simulations that can only be performed a limited number of times, moreover, the physics that describe the systems are not well known and a deterministic approach cannot be taken. }\textcolor{Purple}{This study develops a stochastic Bayesian approach to the problem, building Gaussian process regressions to build objective surrogates that model the objective functions and allow a sequencial optimization process. The method applies the expected improvement (EI) criteria in each iteration to perform an efficient global optimization (EGO) and discover the Pareto front of the problem, which contains the set of optimal solutions of the objectives. }\textcolor{TealBlue}{The method was implemented in a web tool, for it to be used by real users; it was tested with synthetic examples and real observations of an expensive experiment, where it proved to be efficient in finding the corresponding set of optimal solutions for each problem. }This methodology demostrates how a stochastic approach can handle uncertainty in multi-objective optimization problems, dealing with limited observations and avoiding a high amount of evaluations of time-consuming codes or expensive experiments.\\}
+{\normalsize \textcolor{ForestGreen}{Global optimization of expensive, multi-modal and noisy multi-objective functions is a common problem that comes up frequently in various areas of computational and experimental research. Along with being expensive to evaluate and noisy, we are also particularly interested in cases where the objective function under consideration is a black box and does not provide gradient information of the quantity of interest (QoI) w.r.t to the inputs. }\textcolor{red}{Because of the high cost of every single evaluation of such objective functions, we can only obtain a limited number of evaluations of the objective function. This necessarily induces epistemic uncertainty (lack of knowledge due to limited data) on our problem. }\textcolor{Purple}{The Bayesian approach provides a natural framework to approach this problem, building Gaussian process  surrogates that model the objective functions and allow a sequential optimization process. The method applies the expected improvement (EI) information acquisition function in each iteration to perform an efficient global optimization (EGO) and discover the Pareto front of the problem, which contains the set of optimal solutions of the objectives. }\textcolor{TealBlue}{We implemented this method in a NanoHUB tool and tested it with synthetic examples and real observations of an expensive experiment, where it proved to be efficient in finding the corresponding set of optimal solutions for each problem. }This methodology demonstrates the efficiency of the Bayesian approach for handling epistemic uncertainty in multi-objective optimization problems, dealing with limited observations and avoiding a high amount of evaluations of time-consuming codes or expensive experiments.\\}
 
 {\large \textbf{KEYWORDS}\\}
 
 {\normalsize Gaussian process, Multi-Objective, Optimization, Regression, Surrogate, Uncertainty.\\}
 
 {\large \textbf{MENTOR CHECK}\\}
+
+{\normalsize Throughout the mentor meeting, only major changes were made to the motivation section and the problem statement section. The changes were made to make more emphasis on the purpose of the project, as a solution of common real life problems that arise in computational and experimental research. The remaining sections didn't have major changes of content. Finally, the mentor was pleased with the structure of the abstract and its contents.}
 
 \end{document}
