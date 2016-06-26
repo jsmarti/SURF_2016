@@ -85,7 +85,7 @@ def check_observations():
 	format
 	'''
 	global inputs, outputs, l_bounds, u_bounds, max_it
-	
+
 	try:
 		check_inputs = inputs == '' or isinstance(literal_eval(inputs), tuple)
 		check_outputs = outputs == '' or isinstance(literal_eval(outputs), tuple)
@@ -113,93 +113,25 @@ def existing_model():
 	'''Looks for a previous model'''
 	return os.path.isfile('model.obj')
 
-def get_model():
-	'''
-	Loads any previous model stored or creates a new model
-	'''
-	global inputs, outputs, l_bounds, u_bounds, max_it, out_dir, pareto_model
-	try:
-		model_file = open('model.obj','rb')
-		pareto_model = pkl.load(model_file)
-		model_file.close()
-	except IOError:
-		
-		if os.path.isdir(out_dir):
-			shutil.rmtree(out_dir)
-			
-		os.makedirs(out_dir)
-        
-        X_init = literal_eval(inputs)
-        Y_init = literal_eval(outputs)
+def restart():
+	'''Restarts the program'''
+	os.system('rm model.obj')
+	os.system('rm -rf surf_test_results_noisy_moo/')
 
-        X_init = np.array(X_init)
-        Y_init = np.array(Y_init)
-
-        a = literal_eval(l_bounds)
-        b = literal_eval(u_bounds)
-        a = np.array(a)
-        b = np.array(b)
-        X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
-        pareto_model = ParetoFront(X_init, Y_init,
-                             X_design=X_design,
-                             gp_opt_num_restarts=50,
-                             verbose=False,
-                             max_it=max_it,
-                             make_plots=True,
-                             add_at_least=30,
-                             get_fig=get_full_fig,
-                             fig_prefix=os.path.join(out_dir,'ex1'),
-                             Y_true_pareto=None,
-                             gp_fixed_noise=None,
-                             samp=100,
-                             denoised=True)
-                             
-def save_model():
-	'''
-	Saves the pareto model that represents the current state of the optimization
-	'''
-	global pareto_model
-	model_file = open('model.obj','wb')
-	pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
-	model_file.close()
-
-def optimize(pareto_model):
-	'''
-	Main optimization algorithm using the pareto model
-	'''
-	global new_design, new_result
-	if pareto_model.get_current_iteration() == 0 and not pareto_model.get_waiting_results():
-		pareto_model.reset_ei_values()
-		pareto_model.propose_experiment_paused(pareto_model.get_current_iteration())
-		pareto_model.set_waiting_results()
-		new_design = pareto_model.get_response()
-	elif pareto_model.current_iteration() == pareto_model.get_max_iterations():
-		new_design = 'Execution finished'
-	elif pareto_model.get_current_iteration() > 0 or pareto_model.get_waiting_results():
-		pareto_model.learn(literal_eval(new_result), pareto_model.get_current_x_design(), pareto_model.get_current_i(), pareto_model.get_current_iteration())
-		pareto_model.increment_iterations()
-		pareto_model.propose_experiment_paused(pareto_model.current_iteration())
-		new_design = pareto_model.get_response()
-	
-
-
-#Check if the model was previously saved
-if not existing_model():
-	#For a new model, we have to check the observations' format
+def new_optimization():
+	global inputs, outputs, l_bounds, u_bounds, max_it
 	if check_observations():
 		out_dir = 'surf_test_results_noisy_moo'
 		if os.path.isdir(out_dir):
 			shutil.rmtree(out_dir)
-			
 		os.makedirs(out_dir)
-        
-        X_init = literal_eval(inputs)
-        Y_init = literal_eval(outputs)
-        
-        X_init = np.array(X_init)
-        Y_init = np.array(Y_init)
-        
-        a = literal_eval(l_bounds)
+
+		X_init = literal_eval(inputs)
+		Y_init = literal_eval(outputs)
+		X_init = np.array(X_init)
+		Y_init = np.array(Y_init)
+
+		a = literal_eval(l_bounds)
         b = literal_eval(u_bounds)
         a = np.array(a)
         b = np.array(b)
@@ -210,10 +142,16 @@ if not existing_model():
         model_file = open('model.obj','wb')
         pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
         model_file.close()
-#	else:
-#		new_design = 'Incorrect input tuples for new model'
-else:
-	if check_new_result():
+
+	else:
+		new_design = 'Incorrect tuples for new model'
+
+def continue_optimization():
+	global new_design, finish
+	if finish == 'yes':
+		restart()
+		new_design = 'Program restarted'
+	elif check_new_result():
 		model_file = open('model.obj','rb')
 		pareto_model = pkl.load(model_file)
 		model_file.close()
@@ -225,8 +163,18 @@ else:
 	else:
 		new_design = 'Incorrect tuple for new result'
 
+#Check for a previous state of the program
+if not existing_model():
+	new_optimization()
+else:
+	continue_optimization()
+
 #Pareto front
-with open('test_pareto.png','rb') as img:
+path = 'surf_test_results_noisy_moo/'
+fronts = [front for front in os.listdir(path) if front.endswith('.png')]
+fronts.sort()
+last_front = fronts[len(fronts) - 1]
+with open(path + last_front,'rb') as img:
 	imdata = base64.b64encode(img.read())
 
 

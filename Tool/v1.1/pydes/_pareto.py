@@ -1026,7 +1026,7 @@ class ParetoFront(object):
             self.propose_experiment_paused(self.current_iteration)
             self.waiting_results = True
         elif self.current_iteration == self.max_it:
-            print 'Execution finished'
+            self.response = 'Execution finished'
         elif self.current_iteration > 0 or self.waiting_results:
             self.learn(y, self.X_design_paused, self.i_paused, self.current_iteration)
             self.current_iteration += 1
