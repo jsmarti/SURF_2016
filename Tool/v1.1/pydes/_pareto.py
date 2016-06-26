@@ -1017,7 +1017,7 @@ class ParetoFront(object):
             y, X_design, i = self.propose_experiment(it)
             self.learn(y, X_design, i, it)
 
-    def my_optimize_paused(self, y = None):
+    def optimize_paused(self, y = None):
         '''Optimization process ending the execution
         at experiment proposal
         '''
@@ -1026,40 +1026,12 @@ class ParetoFront(object):
             self.propose_experiment_paused(self.current_iteration)
             self.waiting_results = True
         elif self.current_iteration == self.max_it:
-            self.response = 'Execution finished'
+            self.response = 'Execution finished Pareto front completed'
         elif self.current_iteration > 0 or self.waiting_results:
             self.learn(y, self.X_design_paused, self.i_paused, self.current_iteration)
             self.current_iteration += 1
             self.waiting_results = False
-            self.propose_experiment_paused(self.current_iteration)
-
-    #Methods for controlling the object status externally
-    def get_current_iteration(self):
-        return self.current_iteration
-
-    def get_waiting_results(self):
-        return self.waiting_results
-
-    def get_current_x_design(self):
-        return self.X_design_paused
-
-    def get_current_i(self):
-        return self.i_paused
-
-    def get_max_iterations(self):
-        return self.max_it
-
-    def get_response(self):
-        return self.response
-
-    def reset_ei_values(self):
-        self.ei_values = []
-
-    def set_waiting_results(self):
-        self.waiting_results = True
-
-    def clear_waiting_results(self):
-        self.waiting_results = False
-
-    def increment_iterations(self):
-        self.current_iteration += 1
+            if self.current_iteration == self.max_it:
+                self.response = 'Execution finished, Pareto front completed'
+            else:
+                self.propose_experiment_paused(self.current_iteration)

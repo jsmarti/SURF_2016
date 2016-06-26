@@ -115,13 +115,17 @@ def existing_model():
 
 def restart():
 	'''Restarts the program'''
-	os.system('rm model.obj')
-	os.system('rm -rf surf_test_results_noisy_moo/')
+	try:
+		os.system('rm model.obj')
+		os.system('rm -rf surf_test_results_noisy_moo/')
+	except:
+		pass
 
 def new_optimization():
 	global inputs, outputs, l_bounds, u_bounds, max_it
 	response = None
 	if check_observations():
+		Rappture.Utils.progress(10, "New model being created...")
 		out_dir = 'surf_test_results_noisy_moo'
 		if os.path.isdir(out_dir):
 			shutil.rmtree(out_dir)
@@ -138,38 +142,47 @@ def new_optimization():
 		b = np.array(b)
 		X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
 		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
-		pareto_model.my_optimize_paused()
+		Rappture.Utils.progress(20, "Performing optimization algorithm...")
+		pareto_model.optimize_paused()
 		response = pareto_model.get_response()
+		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
 		model_file.close()
+		Rappture.Utils.progress(100, "Done...")
 
 	else:
 		response = 'Incorrect tuples for new model'
-		
+
 	return response
-	
+
 def continue_optimization():
 	global finish
 	response = None
 	if finish:
 		restart()
-		response = 'Program restarted'
+		response = 'Program restarted, enter new input observations'
 	elif check_new_result():
+		Rappture.Utils.progress(10, "Loading previous model...")
 		model_file = open('model.obj','rb')
 		pareto_model = pkl.load(model_file)
 		model_file.close()
-		pareto_model.my_optimize_paused(literal_eval(new_result))
+		Rappture.Utils.progress(20, "Performing optimization algorithm...")
+		pareto_model.optimize_paused(literal_eval(new_result))
 		response = pareto_model.get_response()
+		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
 		model_file.close()
+		Rappture.Utils.progress(100, "Done...")
 	else:
 		response = 'Incorrect tuple for new result'
-		
+
 	return response
 
 #Check for a previous state of the program
+
+Rappture.Utils.progress(0, "Starting...")
 if not existing_model():
 	new_design = new_optimization()
 else:
@@ -187,16 +200,9 @@ try:
 		image_path = path + last_front
 except:
 	image_path = 'no_pareto.png'
-	
+
 with open(image_path,'rb') as img:
 	imdata = base64.b64encode(img.read())
-
-
-# spit out progress messages as you go along...
-Rappture.Utils.progress(0, "Starting...")
-Rappture.Utils.progress(5, "Loading data...")
-Rappture.Utils.progress(50, "Half-way there")
-Rappture.Utils.progress(100, "Done")
 
 #########################################################
 # Save output values back to Rappture
