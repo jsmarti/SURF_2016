@@ -120,6 +120,7 @@ def restart():
 
 def new_optimization():
 	global inputs, outputs, l_bounds, u_bounds, max_it
+	response = None
 	if check_observations():
 		out_dir = 'surf_test_results_noisy_moo'
 		if os.path.isdir(out_dir):
@@ -132,49 +133,62 @@ def new_optimization():
 		Y_init = np.array(Y_init)
 
 		a = literal_eval(l_bounds)
-        b = literal_eval(u_bounds)
-        a = np.array(a)
-        b = np.array(b)
-        X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
-        pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
-        pareto_model.my_optimize_paused()
-        new_design = pareto_model.get_response()
-        model_file = open('model.obj','wb')
-        pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
-        model_file.close()
+		b = literal_eval(u_bounds)
+		a = np.array(a)
+		b = np.array(b)
+		X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
+		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
+		pareto_model.my_optimize_paused()
+		response = pareto_model.get_response()
+		model_file = open('model.obj','wb')
+		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
+		model_file.close()
 
 	else:
-		new_design = 'Incorrect tuples for new model'
-
+		response = 'Incorrect tuples for new model'
+		
+	return response
+	
 def continue_optimization():
-	global new_design, finish
-	if finish == 'yes':
+	global finish
+	response = None
+	if finish:
 		restart()
-		new_design = 'Program restarted'
+		response = 'Program restarted'
 	elif check_new_result():
 		model_file = open('model.obj','rb')
 		pareto_model = pkl.load(model_file)
 		model_file.close()
 		pareto_model.my_optimize_paused(literal_eval(new_result))
-		new_design = pareto_model.get_response()
+		response = pareto_model.get_response()
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
 		model_file.close()
 	else:
-		new_design = 'Incorrect tuple for new result'
+		response = 'Incorrect tuple for new result'
+		
+	return response
 
 #Check for a previous state of the program
 if not existing_model():
-	new_optimization()
+	new_design = new_optimization()
 else:
-	continue_optimization()
+	new_design = continue_optimization()
 
 #Pareto front
 path = 'surf_test_results_noisy_moo/'
-fronts = [front for front in os.listdir(path) if front.endswith('.png')]
-fronts.sort()
-last_front = fronts[len(fronts) - 1]
-with open(path + last_front,'rb') as img:
+try:
+	fronts = [front for front in os.listdir(path) if front.endswith('.png')]
+	if len(fronts) == 0:
+		image_path = 'no_pareto.png'
+	else:
+		fronts.sort()
+		last_front = fronts[len(fronts) - 1]
+		image_path = path + last_front
+except:
+	image_path = 'no_pareto.png'
+	
+with open(image_path,'rb') as img:
 	imdata = base64.b64encode(img.read())
 
 
