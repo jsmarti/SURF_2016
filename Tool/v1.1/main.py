@@ -144,7 +144,7 @@ def new_optimization():
 		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
 		Rappture.Utils.progress(20, "Performing optimization algorithm...")
 		pareto_model.optimize_paused()
-		response = pareto_model.get_response()
+		response = pareto_model.response
 		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
@@ -169,7 +169,7 @@ def continue_optimization():
 		model_file.close()
 		Rappture.Utils.progress(20, "Performing optimization algorithm...")
 		pareto_model.optimize_paused(literal_eval(new_result))
-		response = pareto_model.get_response()
+		response = pareto_model.response
 		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)

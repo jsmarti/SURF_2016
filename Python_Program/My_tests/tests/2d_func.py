@@ -1,7 +1,7 @@
 """
 Objective function script.
 """
- 
+
 import matplotlib
 matplotlib.use('PS')
 import numpy as np
@@ -18,6 +18,7 @@ from math import *
 import math
 import csv
 import copy
+from ast import literal_eval
 
 np.random.seed(123458)
 
@@ -33,7 +34,7 @@ class ObjFunc(object):
             b2 = 15. * x1[1]
             k = (b2 - 5.1 / 4. / math.pi ** 2 * b1 ** 2 + 5. / math.pi * b1 - 6.) ** 2. \
             + 10. * ((1. - 1. / 8. / math.pi) * math.cos(b1) + 1.)
-            y = y + k    
+            y = y + k
         return float(y)/self.n_samp
 
     def f2(self,x):
@@ -50,10 +51,10 @@ class ObjFunc(object):
             y = y + k
         return float(y)/self.n_samp
 
-    def __init__(self,sigma=0.,n_samp=1.): 
+    def __init__(self,sigma=0.,n_samp=1.):
         self.n_samp = n_samp
         self.sigma = sigma
-        
+
     def __call__(self,x):
         return self.f1(x), self.f2(x)
 
@@ -67,8 +68,25 @@ if __name__ == '__main__':
 
     if sys.argv[2].isdigit():
         x = design.latin_center(sys.argv[2],2)
+        x_string_array = str(x).split('\n')
+        inp = open('x.csv','wb')
+        for i, string in enumerate(x_string_array):
+            n_string = string.replace('[','')
+            n_string = n_string.replace(']','')
+            n_string = n_string.replace(' ','')
+            inp.write(n_string[:4] + ',' + n_string[4:len(n_string)] + '\n')
+        inp.close()
+
         print 'the inputs are'+ str(x)
-        y = np.array([obj_funcs_noise(x) for x in x]) 
+        y = np.array([obj_funcs_noise(x) for x in x])
+
+        out = open('y.csv','wb')
+        for data in y:
+            out.write(str(data[0]) + ',' + str(data[1]) + '\n')
+        out.close()
+
+
+
 
     else:
         for i in sys.argv:
@@ -77,7 +95,7 @@ if __name__ == '__main__':
         #x_d = sys.argv[2:]
         for i in sys.argv[2:]:
             x_d.append(float(i))
-        
+
         y = obj_funcs_noise(x_d)
 
     print 'the corresponding outputs are'+ str(y)
