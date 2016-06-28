@@ -21,6 +21,9 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 
+% My packages
+\usepackage{amsmath}        %Matrix
+
 
 \title{Design Optimization of a Stochastic Multi-Objective Problem: \\Gaussian Process Regressions for Objective Surrogates}
 
@@ -84,7 +87,7 @@ Multi-objective optimization (MOO) problems are widely studied through different
 
 The method relies on Gaussian process regressions to build surrogates for the objective functions of the system, as an approximation of the functions that map the inputs to the corresponding outputs. Section 2 describes these regressions and section 3 presents the results of the sequential optimization process using the the surrogates. Section 4 discusses the results obtained for the synthetic example and the real test example and section 5 presents the conclusions of this work.
 
-\section{Methods}
+\section{Methodology}
 
 The MOO problem of black-box systems was addressed through a Bayesian approach, where initial observations of the experiments we want to model provide information that enrich prior beliefs and help us determine better surrogates for our objectives. As only limited information is available, Gaussian process regression was used as a technique for building the functions, this method is able to quantify the epistemic uncertainty induced by the reduced amount of observations.
 
@@ -94,12 +97,58 @@ A Gaussian process (GP) is a collection of random variables, any finite number o
     m(\vec{x}) = \mathbb{E}[f(\vec{x})],
 \end{equation}
 \begin{equation}
-    k(\vec{x},\vec{x}') = \mathbb{E}[(f(\vec{x})-m(\vec{x}))(f(\vec{x}')-m(\vec{x}'))],
+    k(\vec{x},\vec{x}') = \mathbb{E}[(f(\vec{x})-m(\vec{x}))(f(\vec{x}')-m(\vec{x}'))].
 \end{equation}
 
+Then, the process is defined as a Gaussian process as: \cite{Seeger2004}
 
+\begin{equation}
+    f(\vec{x}) \sim GP(m(\vec{x}), k(\vec{x},\vec{x}')).
+\end{equation}
 
+In a more general case, the mean and covariance functions depend on a set of \textit{hyperparameters} denoted by $\vec{\theta}$. Taking this into account, a Gaussian process could be defined as:
 
+\begin{equation}
+    f(\cdot)|\vec{\theta} \sim GP(f(\cdot)|m(\cdot;\vec{\theta}),k(\cdot,\cdot;\vec{\theta})).
+\end{equation}
+
+As for the Bayesian approach taken in this study, a GP was used to model our prior beliefs about the objective functions in the system. In this case, all information about the mean can be included in the covariance function. Thus, $m(\cdot;\vec{\theta})$ was taken to be zero. On the other hand, the covariance function used was the squared exponential (SE) covariance:
+
+\begin{equation}
+    k(\vec{x},\vec{x}';\vec{\theta}) = s^2 \exp \left \{ -\frac{1}{2}\sum_{i=1}^{d}\frac{(x_i - x_i')^2}{\ell_i^2} \right \},
+\end{equation}
+
+where $d$ is the dimensionality of the input space, $s > 0$ is the signal strength of the response and $\ell_i > 0$ is the lengthscale along the input dimension $i$. For this case, the set of hyperparameters $\vec{\theta}$ is composed as $\vec{\theta} = \{s, \ell_1, \ldots, \ell_d\}$. This design for the mean function and the covariance function is the same as the approach taken in \cite{Pandita2016}.\\
+
+In the Gaussian process regression, noisy and limited observations provide a likelihood of the data subject to the hyperparameters of the model. Assuming a Gaussian noise with unknown variance $\sigma^2$, the likelihood is\cite{Pandita2016}:
+
+\begin{equation}
+    p(\vec{y}_{1:n}|\vec{x}_{1:n}, \vec{\psi}) = \mathcal{N}(\vec{y}_{1:n}|\vec{f}_{1:n},\textbf{K}_n(\vec{\theta}) + \sigma^2\textbf{I}_n).
+    \label{likelihood}
+\end{equation}
+
+As expressed in equation \ref{likelihood}, the likelihood has the PDF of a multivariate normal random variable with mean $\vec{f}_{1:n}$ and covariance matrix $\textbf{K}_n(\vec{\theta}) + \sigma^2\textbf{I}_n$, where $\textbf{I}_n \in \mathbb{R}^{n\times n}$ is the identity matrix, $\vec{\psi} = \{ \vec{\theta}, \sigma \}$ and $\textbf{K}_n \in \mathbb{R}^{n\times n}$ is the covariance matrix of the form:
+
+\begin{equation}
+    \textbf{K}_n(\vec{\theta}) =
+    \begin{bmatrix}
+        k(\vec{x}_1,\vec{x}_1;\vec{\theta}) & \cdots & k(\vec{x}_1,\vec{x}_n;\vec{\theta}) \\
+        \vdots & \ddots & \vdots\\
+        k(\vec{x}_n,\vec{x}_1;\vec{\theta}) & \cdots & k(\vec{x}_n,\vec{x}_n;\vec{\theta})
+    \end{bmatrix}.
+\end{equation}
+
+Through Bayes rule, combining the prior beliefs and the likelihood of observed data produces a posterior distribution of the function space that represents our model. This distribution is described as\cite{Pandita2016}:
+
+\begin{equation}
+    p(f(\cdot)|\vec{x}_{1:n},\vec{y}_{1:n},\vec{\psi}) = GP(f(\cdot)|m_n(\vec{x};\vec{\psi}),k_n(\vec{x},\vec{x}';\vec{\psi})),
+\end{equation}
+
+where $m_n(\vec{x};\vec{\psi})$ and $k_n(\vec{x},\vec{x}';\vec{\psi})$ are the posterior mean and covariance functions, their analytical expresions can be found in \cite{Pandita2016}.\\
+
+With this in mind, the common procedure to adjust the posterior model is to maximize the logarithm of the likelihood\footnote{Maximizing the likelihood often requires unachievable computational resources, instead, the logarithm of the function has the same behaviour and it demands more reasonable computation requirements}, which produces the corresponding hyperparameters that optimize the model.\\
+
+This methodology applies for a single objective but can be extended to multiple outputs, and a sequential optimization algorithm for multi-objective problems can be implemented.
 
 \bibliographystyle{ieeetr}
 \bibliography{SURF_2016}
