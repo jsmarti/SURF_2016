@@ -21,6 +21,7 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 
+
 \title{Design Optimization of a Stochastic Multi-Objective Problem: \\Gaussian Process Regressions for Objective Surrogates}
 
 % The \author macro works with any number of authors. There are two
@@ -81,11 +82,27 @@ This study shows how black-box systems have been approached in order to perform 
 
 Multi-objective optimization (MOO) problems are widely studied through different techniques, which include the application of genetic algorithms through the appliance of evolutionary strategies \cite{Costa2006}. In MOO problems, genetic algorithms are used to obtain the Pareto front, which contains the optimal solutions to the problem studied and it is typically the main objective of these type of algorithms, but also, evolutionary techniques have been developed to solve expensive simulation-based optimization problems as presented in \cite{Guo2007} and \cite{Huang2009}. Although these techniques address MOO problems, they do not consider an stochastic approach to handle uncertainty. On the other hand, this type of considerations have been made, and they show how MOO problems can be addressed by an extension of the expected improvement (EI) criteria, deriving a closed form of the information acquisition function \cite{wagner2010expected}. Within this context, the study presented here aims to develop a ``greedy'' and reliable method for MOO problems for real black-box systems, addressing uncertainty propagation and considering expensive objective function evaluations.\\
 
-The method relies on Gaussian process regressions to build surrogates for the objective functions of the system, as an approximation of the functions that map the inputs to the corresponding outputs. Section 2 describes these regressions and section 3 presents the results
+The method relies on Gaussian process regressions to build surrogates for the objective functions of the system, as an approximation of the functions that map the inputs to the corresponding outputs. Section 2 describes these regressions and section 3 presents the results of the sequential optimization process using the the surrogates. Section 4 discusses the results obtained for the synthetic example and the real test example and section 5 presents the conclusions of this work.
+
+\section{Methods}
+
+The MOO problem of black-box systems was addressed through a Bayesian approach, where initial observations of the experiments we want to model provide information that enrich prior beliefs and help us determine better surrogates for our objectives. As only limited information is available, Gaussian process regression was used as a technique for building the functions, this method is able to quantify the epistemic uncertainty induced by the reduced amount of observations.
+
+A Gaussian process (GP) is a collection of random variables, any finite number of which have a joint Gaussian distribution\cite{Seeger2004}. It represents a generalization of a multivariate Gaussian distribution to infinite dimensions, over a space of functions. A GP is defined by its mean function $m(\vec{x})$ and covariance function $k(\vec{x},\vec{x}')$; they are defined for a process $f(\vec{x})$ as:
+
+\begin{equation}
+    m(\vec{x}) = \mathbb{E}[f(\vec{x})],
+\end{equation}
+\begin{equation}
+    k(\vec{x},\vec{x}') = \mathbb{E}[(f(\vec{x})-m(\vec{x}))(f(\vec{x}')-m(\vec{x}'))],
+\end{equation}
+
+
 
 
 
 \bibliographystyle{ieeetr}
 \bibliography{SURF_2016}
 
+\section{Mentor Check}
 \end{document}
