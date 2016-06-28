@@ -23,6 +23,8 @@
 
 % My packages
 \usepackage{amsmath}        %Matrix
+\usepackage{graphicx}       %Graphics
+\usepackage{subcaption}     %Subfigures
 
 
 \title{Design Optimization of a Stochastic Multi-Objective Problem: \\Gaussian Process Regressions for Objective Surrogates}
@@ -85,7 +87,7 @@ This study shows how black-box systems have been approached in order to perform 
 
 Multi-objective optimization (MOO) problems are widely studied through different techniques, which include the application of genetic algorithms through the appliance of evolutionary strategies \cite{Costa2006}. In MOO problems, genetic algorithms are used to obtain the Pareto front, which contains the optimal solutions to the problem studied and it is typically the main objective of these type of algorithms, but also, evolutionary techniques have been developed to solve expensive simulation-based optimization problems as presented in \cite{Guo2007} and \cite{Huang2009}. Although these techniques address MOO problems, they do not consider an stochastic approach to handle uncertainty. On the other hand, this type of considerations have been made, and they show how MOO problems can be addressed by an extension of the expected improvement (EI) criteria, deriving a closed form of the information acquisition function \cite{wagner2010expected}. Within this context, the study presented here aims to develop a ``greedy'' and reliable method for MOO problems for real black-box systems, addressing uncertainty propagation and considering expensive objective function evaluations.\\
 
-The method relies on Gaussian process regressions to build surrogates for the objective functions of the system, as an approximation of the functions that map the inputs to the corresponding outputs. Section 2 describes these regressions and section 3 presents the results of the sequential optimization process using the the surrogates. Section 4 discusses the results obtained for the synthetic example and the real test example and section 5 presents the conclusions of this work.
+The method relies on Gaussian process regressions to build surrogates for the objective functions of the system, as an approximation of the functions that map the inputs to the corresponding outputs. This surrogates are able to consider uncertainty at the input and enables the addition of observations to enrich prior beliefs of the problem, in order to adjust the response surfaces and obtain a better description of the system. Section 2 describes these regressions and section 3 presents the results of the sequential optimization process using the the surrogates. Section 4 discusses the results obtained for the synthetic example and the real test example and section 5 presents the conclusions of this work.
 
 \section{Methodology}
 
@@ -144,11 +146,28 @@ Through Bayes rule, combining the prior beliefs and the likelihood of observed d
     p(f(\cdot)|\vec{x}_{1:n},\vec{y}_{1:n},\vec{\psi}) = GP(f(\cdot)|m_n(\vec{x};\vec{\psi}),k_n(\vec{x},\vec{x}';\vec{\psi})),
 \end{equation}
 
-where $m_n(\vec{x};\vec{\psi})$ and $k_n(\vec{x},\vec{x}';\vec{\psi})$ are the posterior mean and covariance functions, their analytical expresions can be found in \cite{Pandita2016}.\\
+where $m_n(\vec{x};\vec{\psi})$ and $k_n(\vec{x},\vec{x}';\vec{\psi})$ are the posterior mean and covariance functions, their analytical expresions can be found in \cite{Pandita2016}. With this in mind, the common procedure to adjust the posterior model is to maximize the logarithm of the likelihood\footnote{Maximizing the likelihood often requires unachievable computational resources, instead, the logarithm of the function has the same behaviour and it demands more reasonable computation requirements}, which produces the corresponding hyperparameters that optimize the model.\\
 
-With this in mind, the common procedure to adjust the posterior model is to maximize the logarithm of the likelihood\footnote{Maximizing the likelihood often requires unachievable computational resources, instead, the logarithm of the function has the same behaviour and it demands more reasonable computation requirements}, which produces the corresponding hyperparameters that optimize the model.\\
+To ilustrate this, figure \ref{gp_regression} shows a Gaussian process regression for a cosine function with Gaussian noise added, the regression was built with a signal strength of 1 and a lengthscale of 1 for the 1-dimensional input. The black ``X" marks represent sample points of the real function and the blue line represents the mean function of the sampled regression, along with the shaded area that represents the uncertainty of the surrogate. In figure \ref{gp}, only prior information is used to build the regression, but on figure \ref{gp_optimized}, observed data is applied and the posterior is adjusted due to the maximization of the likelihood of data. As we can see, uncertainty is reduced around the observed data but increases around isolated data points or where there are no observations.
 
-This methodology applies for a single objective but can be extended to multiple outputs, and a sequential optimization algorithm for multi-objective problems can be implemented.
+\begin{figure}
+\centering
+	\begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{gp_cosine.png}
+        \caption{Gaussian process regression}
+        \label{gp}
+	\end{subfigure}
+%	\hspace*{\fill}
+	\begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{gp_cosine_optimized.png}
+	    \caption{Optimized Gaussian process regression}
+	    \label{gp_optimized}
+	\end{subfigure}
+\caption{Gaussian process regression of cosine function}
+\label{gp_regression}
+\end{figure}
+
+This methodology applies for a single objective but can be extended to multiple outputs, and a sequential optimization algorithm for multi-objective problems can be implemented. This is the case for the overall project, where a sequential algorithm uses the expected improvement (EI) as the best information acquisition function (IAF)\cite{Jones2001} (applied to multiple objectives \cite{wagner2010expected}) to generate new evaluations of the experiment that is being modeled.
 
 \bibliographystyle{ieeetr}
 \bibliography{SURF_2016}
