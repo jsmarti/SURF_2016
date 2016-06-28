@@ -74,17 +74,43 @@ if __name__ == '__main__':
             n_string = string.replace('[','')
             n_string = n_string.replace(']','')
             n_string = n_string.replace(' ','')
-            inp.write(n_string[:4] + ',' + n_string[4:len(n_string)] + '\n')
+            if i < len(x_string_array)-1:
+                inp.write(n_string[:4] + ',' + n_string[4:len(n_string)] + '\n')
+            else:
+                inp.write(n_string[:4] + ',' + n_string[4:len(n_string)])
         inp.close()
 
         print 'the inputs are'+ str(x)
         y = np.array([obj_funcs_noise(x) for x in x])
 
         out = open('y.csv','wb')
-        for data in y:
-            out.write(str(data[0]) + ',' + str(data[1]) + '\n')
+        for i, data in enumerate(y):
+            if i < len(y) - 1:
+                out.write(str(data[0]) + ',' + str(data[1]) + '\n')
+            else:
+                out.write(str(data[0]) + ',' + str(data[1]))
         out.close()
 
+        #Open everything
+        inp = open('x.csv','rb')
+        line = inp.read()
+        x_data = list(line.split('\n'))
+        data_list = []
+        for i in range(len(x_data)):
+            print x_data[i].split(',')
+            data_list.append(tuple(map(float,x_data[i].split(','))))
+        t = tuple(data_list)
+        print t
+
+        out = open('y.csv','rb')
+        line = out.read()
+        y_data = list(line.split('\n'))
+        data_list = []
+        for i in range(len(y_data)):
+            print y_data[i].split(',')
+            data_list.append(tuple(map(float,y_data[i].split(','))))
+        t_y = tuple(data_list)
+        print t_y
 
 
 

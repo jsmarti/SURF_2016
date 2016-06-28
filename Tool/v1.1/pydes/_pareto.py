@@ -1035,6 +1035,3 @@ class ParetoFront(object):
                 self.response = 'Execution finished, Pareto front completed'
             else:
                 self.propose_experiment_paused(self.current_iteration)
-
-    def get_response(self):
-        return self.response

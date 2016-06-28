@@ -20,20 +20,38 @@
                 <label>Initial Inputs</label>
                 <description>Initial observations of the experiment</description>
             </about>
+            <loader>
+				<about>
+					<label>CSV file:</label>
+				</about>
+				<upload>
+					<to>input.phase(initial_inputs).string(inputs)</to>
+					<to>input.phase(initial_inputs).string(outputs)</to>
+				</upload>
+			</loader>
             <note id="note_setp_2">
                 <contents>file://note_step2.html</contents>
             </note>
+            <boolean id="csv_valid">
+                <about>
+                    <label>CSV file</label>
+                    <description>Boolean control for CSV files as inputs</description>
+                </about>
+                <default>no</default>
+            </boolean>
             <string id="inputs">
                 <about>
                     <label>Observed Inputs:</label>
                     <description>Input observations of the experiment</description>
                 </about>
+                <filetype>.csv</filetype>
             </string>
             <string id="outputs">
                 <about>
                     <label>Observed Outputs:</label>
                     <description>Observed outputs of the experiment</description>
                 </about>
+                <filetype>.csv</filetype>
             </string>
             <string id="l_bounds">
                 <about>
@@ -93,21 +111,5 @@
                 <description>Current pareto front</description>
             </about>
         </image>
-        <curve id="curve">
-            <about>
-                <label>Sine Curve</label>
-                <description>Test sine curve of data points</description>
-            </about>
-            <xaxis>
-                <label>data</label>
-                <description>data serialized</description>
-                <units>s</units>
-            </xaxis>
-            <yaxis>
-                <label>sin(data)</label>
-                <description>sine data serialized</description>
-                <units>T</units>
-            </yaxis>
-        </curve>
     </output>
 </run>

@@ -25,7 +25,8 @@ import shutil
 
 # uncomment these to redirect stdout and stderr
 # to files for debugging.
-#sys.stderr = open('debug.err', 'w')
+my_log = open('log.log','wb')
+sys.stderr = open('debug.err', 'wb')
 #sys.stdout = open('debug.out', 'w')
 
 # open the XML file containing the run parameters
@@ -35,6 +36,18 @@ io = Rappture.PyXml(sys.argv[1])
 # Get input values from Rappture
 #########################################################
 
+
+#Inputs from csv files
+
+# get input value for input.string(x_in)
+#x_in = io['input.string(x_in).current'].value
+
+# get input value for input.string(y_in)
+#y_in = io['input.string(y_in).current'].value
+
+# get input value for input.phase(initial_inputs).boolean(csv_observations)
+# returns value as string "yes" or "no"
+csv_valid = io['input.phase(initial_inputs).boolean(csv_valid).current'].value == 'yes'
 
 # get input value for input.phase(desc).note(note)
 note = io['input.phase(desc).note(note).current'].value
@@ -68,8 +81,6 @@ finish = io['input.phase(iterative_run).boolean(finish).current'].value == 'yes'
 new_result = io['input.phase(iterative_run).string(new_result).current'].value
 
 
-#Pareto Model
-#pareto_model = None
 
 #########################################################
 #  Add your code here for the main body of your program
@@ -79,23 +90,50 @@ new_result = io['input.phase(iterative_run).string(new_result).current'].value
 # My methods
 ########################################################
 
+def format_csv_files():
+	global inputs, outputs, x_datalist, y_datalist
+	
+	x_datastr=list(inputs.split('\n'))
+	y_datastr=list(outputs.split('\n'))
+	
+	for i in range(len(x_datastr)):
+		x_datalist.append(tuple(map(float,x_datastr[i].split(','))))
+	for i in range(len(y_datastr)):
+		y_datalist.append(tuple(map(float,y_datastr[i].split(','))))
+	
+	x_datalist = tuple(x_datalist)
+	y_datalist = tuple(y_datalist)
+
 def check_observations():
 	'''
 	Check for all the input observations to be empty or to have the correct tuple
 	format
 	'''
-	global inputs, outputs, l_bounds, u_bounds, max_it
-
+	my_log.write('Checking observations\n')
+	global inputs, outputs, l_bounds, u_bounds, max_it, csv_valid
 	try:
-		check_inputs = inputs == '' or isinstance(literal_eval(inputs), tuple)
-		check_outputs = outputs == '' or isinstance(literal_eval(outputs), tuple)
-		check_l_bounds = l_bounds == '' or isinstance(literal_eval(l_bounds), tuple)
-		check_u_bounds = u_bounds == '' or isinstance(literal_eval(u_bounds), tuple)
-		check_max_it = max_it == '' or isinstance(max_it,int)
+		if csv_valid:
+			try:
+				format_csv_files()
+				check_inputs = True
+				check_outputs = True
+			except Exception, e:
+				my_log.write(str(e))
+				check_inputs = False
+				check_outputs = False	
+		else:
+			check_inputs = isinstance(literal_eval(inputs), tuple)
+			check_outputs = isinstance(literal_eval(outputs), tuple)
+			
+		check_l_bounds = isinstance(literal_eval(l_bounds), tuple)
+		check_u_bounds = isinstance(literal_eval(u_bounds), tuple)
+		check_max_it = isinstance(max_it,int)
 
 		check = check_inputs and check_outputs and check_l_bounds and check_u_bounds and check_max_it
+		
 		return check
-	except:
+	except Exception, e:
+		my_log.write(str(e))
 		return False
 
 def check_new_result():
@@ -122,8 +160,9 @@ def restart():
 		pass
 
 def new_optimization():
-	global inputs, outputs, l_bounds, u_bounds, max_it
+	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid
 	response = None
+	my_log.write('New optimization...\n')
 	if check_observations():
 		Rappture.Utils.progress(10, "New model being created...")
 		out_dir = 'surf_test_results_noisy_moo'
@@ -131,8 +170,13 @@ def new_optimization():
 			shutil.rmtree(out_dir)
 		os.makedirs(out_dir)
 
-		X_init = literal_eval(inputs)
-		Y_init = literal_eval(outputs)
+		if csv_valid:
+			X_init = x_datalist
+			Y_init = y_datalist
+		else:
+			X_init = literal_eval(inputs)
+			Y_init = literal_eval(outputs)
+			
 		X_init = np.array(X_init)
 		Y_init = np.array(Y_init)
 
@@ -182,6 +226,9 @@ def continue_optimization():
 
 #Check for a previous state of the program
 
+x_datalist=[]
+y_datalist=[]
+my_log.write('start\n')
 Rappture.Utils.progress(0, "Starting...")
 if not existing_model():
 	new_design = new_optimization()
@@ -215,12 +262,7 @@ io['output.string(new_design).current'] = new_design
 # data should be base64-encoded image data
 io['output.image(pareto_front).current'] = imdata
 
-# save output value for output.curve(curve)
-# x and y should be lists or arrays -- modify as needed
-x = np.linspace(0,1,1000)
-y = np.sin(2*np.pi*1000*x)
-io['output.curve(curve).component.xy'] = (x, y)
-
 
 io.close()
+my_log.close()
 sys.exit()
