@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/main.py", line 234, in <module>
+    new_design = new_optimization()
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/main.py", line 190, in new_optimization
+    pareto_model.optimize_paused()
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 1029, in optimize_paused
+    self.propose_experiment_paused(self.current_iteration)
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 981, in propose_experiment_paused
+    ei = self.compute_expected_improvement(X_design)
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 625, in compute_expected_improvement
+    ei[i] = self._compute_expected_improvement(mu, sigma)
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 635, in _compute_expected_improvement
+    ei += self._compute_delta(mu, sigma, l, u, i)
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 658, in _compute_delta
+    S_minus_vol = self._compute_volume_of_S_minus(u, v)
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 697, in _compute_volume_of_S_minus
+    L_plus_vol = self._compute_volume_of_L_plus(u)
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 705, in _compute_volume_of_L_plus
+    for ln, un, _ in self.active_cells_dominated_by_lplus(u):
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 411, in active_cells_dominated_by_lplus
+    for l, u, i in self.active_cells_lplus:
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 373, in active_cells_lplus
+    if not is_dominated_lplus(l, self.Y_pareto):
+  File "/home/nanohub/mart1304/mystuff/my_tests/Tool_Tests/v2.0/pydes/_pareto.py", line 75, in is_dominated_lplus
+    if np.all(Y[j, :]<=y):
+  File "/apps/share64/debian7/anaconda/anaconda-2.5.0/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 2042, in all
+    return arr.all(axis=axis, out=out, keepdims=keepdims)
+  File "/apps/share64/debian7/anaconda/anaconda-2.5.0/lib/python2.7/site-packages/numpy/core/_methods.py", line 41, in _all
+    return umr_all(a, axis, dtype, out, keepdims)
+KeyboardInterrupt
