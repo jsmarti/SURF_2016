@@ -45,17 +45,18 @@
   Universidad de los Andes\\
   Bogotá, Colombia \\
   \texttt{js.martinez777@uniandes.edu.co} \\
-  %% examples of more authors
-  %% \And
-  %% Coauthor \\
-  %% Affiliation \\
-  %% Address \\
-  %% \texttt{email} \\
-  %% \AND
-  %% Coauthor \\
-  %% Affiliation \\
-  %% Address \\
-  %% \texttt{email} \\
+  \And
+  Piyush Pandita \\
+  School of Mechanical Engineering \\
+  Purdue University \\
+  West Lafayette, Indiana 47907\\
+  \texttt{ppandit@purdue.edu} \\
+  \AND
+  Ilias Bilionis \\
+  School of Mechanical Engineering \\
+  Purdue University \\
+  West Lafayette, Indiana 47907\\
+  \texttt{ibilion@purdue.edu} \\
   %% \And
   %% Coauthor \\
   %% Affiliation \\
@@ -148,7 +149,7 @@ Through Bayes rule, combining the prior beliefs and the likelihood of observed d
 
 where $m_n(\vec{x};\vec{\psi})$ and $k_n(\vec{x},\vec{x}';\vec{\psi})$ are the posterior mean and covariance functions, their analytical expressions can be found in \cite{Pandita2016}. With this in mind, the common procedure to adjust the posterior model is to maximize the logarithm of the likelihood\footnote{Maximizing the likelihood often requires unachievable computational resources, instead, the logarithm of the function has the same behavior and it demands more reasonable computation requirements}, which produces the corresponding hyperparameters that optimize the model.\\
 
-To illustrate this, figure \ref{gp_regression} shows a Gaussian process regression for a cosine function with Gaussian noise added, the regression was built with a signal strength of 1 and a lengthscale of 1 for the 1-dimensional input. The black "X" marks represent sample points of the real function and the blue line represents the mean function of the sampled regression, along with the shaded area that represents the uncertainty of the surrogate. In figure \ref{gp}, only prior information is used to build the regression, but on figure \ref{gp_optimized}, observed data is applied and the posterior is adjusted due to the maximization of the likelihood of data. As we can see, uncertainty is reduced around the observed data but increases around isolated data points or where there are no observations.
+To illustrate this, figure \ref{gp_regression} shows a Gaussian process regression for a cosine function with Gaussian noise added, the regression was built with a signal strength of 1 and a lengthscale of 1 for the 1-dimensional input. The "X" marks represent sample points of the real function and the continuous line represents the mean function of the sampled regression, along with the shaded area that represents the uncertainty of the surrogate. In figure \ref{gp}, only prior information is used to build the regression, but on figure \ref{gp_optimized}, observed data is applied and the posterior is adjusted due to the maximization of the likelihood of data. As we can see, uncertainty is reduced around the observed data but increases around isolated data points or where there are no observations.
 
 \begin{figure}
 \centering
@@ -170,8 +171,6 @@ To illustrate this, figure \ref{gp_regression} shows a Gaussian process regressi
 This methodology applies for a single objective but can be extended to multiple outputs, and a sequential optimization algorithm for multi-objective problems can be implemented. This is the case for the overall project, where a sequential algorithm uses an extension of the expected improvement (EI) as the best information acquisition function (IAF)\cite{Jones2001} (applied to multiple objectives \cite{wagner2010expected}) to generate new evaluations of the experiment that is being modeled.
 
 \section{Results}
-
-The method was implemented in a nanoHUB tool in the Python 2.7.11 programming language. 
 
 \section{Discussion}
 
