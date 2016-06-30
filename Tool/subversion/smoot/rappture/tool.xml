@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<run>
+    <tool>
+        <title>SMOOT</title>
+        <about>This is the first version of the Stochastic Multi-Objective Optimization Tool</about>
+        <command>python @tool/main.py @driver</command>
+    </tool>
+    <input>
+        <phase id="desc">
+            <about>
+                <label>Description</label>
+                <description>Description of the tool</description>
+            </about>
+            <note id="note">
+                <contents>file://note.html</contents>
+            </note>
+        </phase>
+        <phase id="initial_inputs">
+            <about>
+                <label>Initial Inputs</label>
+                <description>Initial observations of the experiment</description>
+            </about>
+            <loader>
+				<about>
+					<label>CSV file:</label>
+				</about>
+				<upload>
+					<to>input.phase(initial_inputs).string(inputs)</to>
+					<to>input.phase(initial_inputs).string(outputs)</to>
+				</upload>
+			</loader>
+			<boolean id="csv_valid">
+                <about>
+                    <label>CSV file</label>
+                    <description>Boolean control for CSV files as inputs</description>
+                </about>
+                <default>no</default>
+            </boolean>
+            <drawing>
+				<background>
+					<width>100</width>
+					<height>200</height>
+					<color>gray</color>
+				</background>
+				<components>
+					<picture>
+						<coords>0.05 0.05 0.95 0.95</coords>
+						<anchor>nw</anchor>
+						<contents>file://black_box_2.png</contents>
+					</picture>
+					<hotspot>
+						<coords>0.225 0.41</coords>
+						<controls>input.phase(initial_inputs).string(inputs)</controls>
+					</hotspot>
+					<hotspot>
+						<coords>0.225 0.72</coords>
+						<controls>input.phase(initial_inputs).string(l_bounds)</controls>
+						<controls>input.phase(initial_inputs).string(u_bounds)</controls>
+					</hotspot>
+					<hotspot>
+						<coords>0.515 0.55</coords>
+						<controls>input.phase(initial_inputs).integer(max_it)</controls>
+					</hotspot>
+					<hotspot>
+						<coords>0.772 0.56</coords>
+						<controls>input.phase(initial_inputs).string(outputs)</controls>
+					</hotspot>
+				</components>
+            </drawing>
+            <note id="note_setp_2">
+                <contents>file://note_step2.html</contents>
+            </note>
+            <string id="inputs">
+                <about>
+                    <label>Observed Inputs:</label>
+                    <description>Input observations of the experiment</description>
+                </about>
+                <filetype>.csv</filetype>
+            </string>
+            <string id="outputs">
+                <about>
+                    <label>Observed Outputs:</label>
+                    <description>Observed outputs of the experiment</description>
+                </about>
+                <filetype>.csv</filetype>
+            </string>
+            <string id="l_bounds">
+                <about>
+                    <label>Lower Input Bounds</label>
+                    <description>Lower input bounds</description>
+                </about>
+            </string>
+            <string id="u_bounds">
+                <about>
+                    <label>Upper Input Bounds:</label>
+                    <description>Upper input bounds</description>
+                </about>
+            </string>
+            <integer id="max_it">
+                <about>
+                    <label>Number of iterations</label>
+                    <description>Maximun number of iterations for the program</description>
+                </about>
+                <default>10</default>
+                <min>1</min>
+            </integer>
+        </phase>
+        <phase id="iterative_run">
+            <about>
+                <label>Optimization Process</label>
+                <description>Optimization process performed by the code</description>
+            </about>
+            <note id="note_step_3">
+                <contents>file://note_step3.html</contents>
+            </note>
+            <boolean id="finish">
+                <about>
+                    <label>Finish executions</label>
+                    <description>Boolean control to finish global execution</description>
+                </about>
+                <default>no</default>
+            </boolean>
+            <string id="new_result">
+                <about>
+                    <label>New observed value</label>
+                    <description>New observed value after running the experiment at the previous design</description>
+                    <enable>!input.phase(iterative_run).boolean(finish)</enable>
+                </about>
+            </string>
+        </phase>
+    </input>
+    <output>
+        <string id="new_design">
+            <about>
+                <label>Proposed Experiment:</label>
+                <description>Proposed design for the experimentalist to run his experiment with</description>
+            </about>
+        </string>
+        <image id="pareto_front">
+            <about>
+                <label>Pareto Front</label>
+                <description>Current pareto front</description>
+            </about>
+        </image>
+    </output>
+</run>

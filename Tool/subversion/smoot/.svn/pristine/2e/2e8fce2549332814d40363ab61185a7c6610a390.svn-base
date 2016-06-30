@@ -1,0 +1,14 @@
+<html>
+  <body>
+    <h1>Optimization Process</h1>
+    <p>The iterative process of optimization is controlled by the inputs:</p>
+    <ul>
+		<li><b>Finish Executions</b>: Set a value of "yes" and simulate to terminate the program</li>
+		<li><b>New Observed Value</b>: Enter a new result of your experiment in a tuple form</li>
+    </ul>	
+    <p>If you are running the tool for the first time, the <b>New Observed Value</b> input can be blank or have any value. After the first simulation is performed, the program will suggest a new design for your experiment. 
+    The result of the suggested experiment should be entered in the "New Observed Value" field for a new simulation. This process should continue until the maximum number of iterations is reached, or until 
+    the <b>Finish Executions</b> control is activated.</p>
+    <img src='fsm3.png' align='middle' width='500' height='200'/>
+  </body>
+</html>
