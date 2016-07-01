@@ -194,17 +194,23 @@ def new_optimization():
 		a = np.array(a)
 		b = np.array(b)
 		X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
+		my_log.write('Creating Pareto model...\n')
 		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
+		my_log.write('Pareto model created...\n')
 		Rappture.Utils.progress(20, "Performing optimization algorithm...")
+		my_log.write('Starting optimization algorithm...\n')
 		pareto_model.optimize_paused()
 		response = pareto_model.response
+		my_log.write('Optimization finished, saving the model...\n')
 		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
 		model_file.close()
+		my_log.write('Process completed...\n')
 		Rappture.Utils.progress(100, "Done...")
 
 	else:
+		my_log.write('Incorrect input values, finishing execution...\n')
 		response = 'Incorrect tuples for new model'
 
 	return response
@@ -212,25 +218,34 @@ def new_optimization():
 def continue_optimization():
 	global finish, pareto_data
 	response = None
+	my_log.write('Continue optimization...\n')
 	if finish:
+		my_log.write('Restarting program...\n')
 		restart()
 		response = 'Program restarted, enter new input observations'
+		my_log.write('Program restarted...\n')
 	elif check_new_result():
+		my_log.write('Loading previous model...\n')
 		Rappture.Utils.progress(10, "Loading previous model...")
 		model_file = open('model.obj','rb')
 		pareto_model = pkl.load(model_file)
 		model_file.close()
+		my_log.write('Model loaded, performing optimization...\n')
 		Rappture.Utils.progress(20, "Performing optimization algorithm...")
 		pareto_model.optimize_paused(new_result)
 		response = pareto_model.response
 		pareto_data = pareto_model.get_pareto_data()
+		my_log.write('Finished optimization, Pareto data available...\n')
 		Rappture.Utils.progress(60, "Saving the model...")
+		my_log.write('Saving the model...\n')
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
 		model_file.close()
 		Rappture.Utils.progress(100, "Done...")
+		my_log.write('Model saved, finished execution...\n')
 	else:
 		response = 'Incorrect tuple for new result'
+		my_log.write('Incorrect input for new observation...\n')
 
 	return response
 
@@ -238,7 +253,7 @@ def continue_optimization():
 
 x_datalist=[]
 y_datalist=[]
-my_log.write('start\n')
+my_log.write('Start...\n')
 Rappture.Utils.progress(0, "Starting...")
 if not existing_model():
 	new_design = new_optimization()
@@ -279,8 +294,8 @@ if pareto_data is not None:
 	x = pareto_data[:,0]
 	y = pareto_data[:,1]
 else:
-	x = np.linspace(0,1,5)
-	y = x**2
+	x = [1]
+	y = [1]
 
 io['output.curve(scatter).component.xy'] = (x,y)
 

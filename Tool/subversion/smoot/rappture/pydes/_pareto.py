@@ -103,7 +103,6 @@ def plot_pareto(Y, ax=None, style='-',
     assert m == 2, 'Only works with 2 objectives.'
     idx = get_idx_of_observed_pareto_front_2d(Y)
     Y = Y[idx, :]
-    pareto_data = Y
     n = Y.shape[0]
     ax.plot([max_obj[0], Y[0, 0]],
             [Y[0, 1], Y[0, 1]], style, color=color, linewidth=linewidth)
@@ -114,7 +113,7 @@ def plot_pareto(Y, ax=None, style='-',
                 linewidth=linewidth)
     ax.plot([Y[-1, 0], Y[-1, 0]],
             [Y[-1, 1], max_obj[1]], style, color=color, linewidth=linewidth)
-    return ax.get_figure(), ax, pareto_data
+    return ax.get_figure(), ax
 
 
 def compute_sorted_list_of_pareto_points(Y, y_ref):
@@ -950,6 +949,7 @@ class ParetoFront(object):
         self.train_surrogates()
         self.Y_p = self.get_projected_observations()
         self.idx = get_idx_of_observed_pareto_front(self.Y_p)
+        self.pareto_data = self.Y_p[self.idx,:]
         self.b = compute_sorted_list_of_pareto_points(self.Y_pareto, self.y_ref)
         #self.Y_true_noiseless = np.array([self.obj_funcs_true(x) for x in self.X])
         if self.verbose:
@@ -1025,9 +1025,10 @@ class ParetoFront(object):
             self.learn(y, X_design, i, it)
 
     def get_pareto_data(self):
-        idx = get_idx_of_observed_pareto_front_2d(self.Y_p)
-        Y = self.Y_p[idx, :]
-        return Y
+        #idx = get_idx_of_observed_pareto_front_2d(self.Y_p)
+        #Y = self.Y_p[idx, :]
+        #return Y
+        return self.pareto_data
 
     def optimize_paused(self, y = None):
         '''Optimization process ending the execution
