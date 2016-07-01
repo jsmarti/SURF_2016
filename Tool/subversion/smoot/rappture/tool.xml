@@ -28,8 +28,8 @@
 					<to>input.phase(initial_inputs).string(inputs)</to>
 					<to>input.phase(initial_inputs).string(outputs)</to>
 				</upload>
-			</loader>
-			<boolean id="csv_valid">
+	    </loader>
+	    <boolean id="csv_valid">
                 <about>
                     <label>CSV file</label>
                     <description>Boolean control for CSV files as inputs</description>
@@ -72,7 +72,7 @@
             </note>
             <string id="inputs">
                 <about>
-                    <label>Observed Inputs:</label>
+                    <label>Observed Inputs</label>
                     <description>Input observations of the experiment</description>
                 </about>
                 <filetype>.csv</filetype>
@@ -110,22 +110,53 @@
                 <label>Optimization Process</label>
                 <description>Optimization process performed by the code</description>
             </about>
-            <note id="note_step_3">
-                <contents>file://note_step3.html</contents>
-            </note>
-            <boolean id="finish">
+	    <loader>
+			<about>
+				<label>CSV file</label>
+			</about>
+			<upload>
+				<to>input.phase(iterative_run).string(new_result)</to>
+			</upload>
+	    </loader>
+	    <drawing>
+		<background>
+			<width>1</width>
+			<height>40</height>
+			<color>gray</color>
+		</background>
+
+		<components>
+			<picture>
+				<coords>0 0 0.5 1</coords>
+				<anchor>nw</anchor>
+				<contents>file://list_new_values.png</contents>
+			</picture>
+		        <hotspot>
+		    	<coords>0.47 0.5</coords>
+			<controls>input.phase(iterative_run).string(new_result)</controls>
+		    	</hotspot>
+		</components>
+	    </drawing>
+	    <boolean id="finish">
                 <about>
                     <label>Finish executions</label>
                     <description>Boolean control to finish global execution</description>
                 </about>
                 <default>no</default>
             </boolean>
+	    <note id="note_step_3">
+                <contents>file://note_step3.html</contents>
+            </note>
+
+
             <string id="new_result">
                 <about>
                     <label>New observed value</label>
                     <description>New observed value after running the experiment at the previous design</description>
                     <enable>!input.phase(iterative_run).boolean(finish)</enable>
                 </about>
+	    <filetype>.csv</filetype>
+
             </string>
         </phase>
     </input>
@@ -136,11 +167,26 @@
                 <description>Proposed design for the experimentalist to run his experiment with</description>
             </about>
         </string>
-        <image id="pareto_front">
+        <!--<image id="pareto_front">
             <about>
                 <label>Pareto Front</label>
                 <description>Current pareto front</description>
             </about>
-        </image>
+        </image>-->
+        <curve id="scatter">
+            <about>
+                <label>Pareto Front</label>
+                <description>Calculated Pareto front for the 2 dimensioal problem</description>
+                <type>scatter</type>
+            </about>
+            <xaxis>
+                <label>Objective 1</label>
+                <description>First objective of the optimization problem</description>
+            </xaxis>
+            <yaxis>
+                <label>Objective 2</label>
+                <description>Second objective of the optimization problem</description>
+            </yaxis>
+        </curve>
     </output>
 </run>

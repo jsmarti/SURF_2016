@@ -26,7 +26,7 @@ import shutil
 # uncomment these to redirect stdout and stderr
 # to files for debugging.
 my_log = open('log.log','wb')
-sys.stderr = open('debug.err', 'wb')
+#sys.stderr = open('debug.err', 'wb')
 #sys.stdout = open('debug.out', 'w')
 
 # open the XML file containing the run parameters
@@ -80,7 +80,8 @@ finish = io['input.phase(iterative_run).boolean(finish).current'].value == 'yes'
 # get input value for input.phase(iterative_run).string(new_result)
 new_result = io['input.phase(iterative_run).string(new_result).current'].value
 
-
+#Pareto data
+pareto_data = None
 
 #########################################################
 #  Add your code here for the main body of your program
@@ -92,17 +93,25 @@ new_result = io['input.phase(iterative_run).string(new_result).current'].value
 
 def format_csv_files():
 	global inputs, outputs, x_datalist, y_datalist
-	
+
 	x_datastr=list(inputs.split('\n'))
 	y_datastr=list(outputs.split('\n'))
-	
+
 	for i in range(len(x_datastr)):
 		x_datalist.append(tuple(map(float,x_datastr[i].split(','))))
 	for i in range(len(y_datastr)):
 		y_datalist.append(tuple(map(float,y_datastr[i].split(','))))
-	
+
 	x_datalist = tuple(x_datalist)
 	y_datalist = tuple(y_datalist)
+
+def format_csv_file_new_result():
+	'''
+	Creates a tuple from csv file for the new result
+	'''
+	global new_result
+
+	new_result = tuple(map(float,new_result.split(',')))
 
 def check_observations():
 	'''
@@ -120,17 +129,17 @@ def check_observations():
 			except Exception, e:
 				my_log.write(str(e))
 				check_inputs = False
-				check_outputs = False	
+				check_outputs = False
 		else:
 			check_inputs = isinstance(literal_eval(inputs), tuple)
 			check_outputs = isinstance(literal_eval(outputs), tuple)
-			
+
 		check_l_bounds = isinstance(literal_eval(l_bounds), tuple)
 		check_u_bounds = isinstance(literal_eval(u_bounds), tuple)
 		check_max_it = isinstance(max_it,int)
 
 		check = check_inputs and check_outputs and check_l_bounds and check_u_bounds and check_max_it
-		
+
 		return check
 	except Exception, e:
 		my_log.write(str(e))
@@ -142,8 +151,8 @@ def check_new_result():
 	'''
 	global new_result
 	try:
-		check = isinstance(literal_eval(new_result), tuple)
-		return check
+		new_result = tuple(map(float,new_result.split(',')))
+		return True
 	except:
 		return False
 
@@ -176,7 +185,7 @@ def new_optimization():
 		else:
 			X_init = literal_eval(inputs)
 			Y_init = literal_eval(outputs)
-			
+
 		X_init = np.array(X_init)
 		Y_init = np.array(Y_init)
 
@@ -201,7 +210,7 @@ def new_optimization():
 	return response
 
 def continue_optimization():
-	global finish
+	global finish, pareto_data
 	response = None
 	if finish:
 		restart()
@@ -212,8 +221,9 @@ def continue_optimization():
 		pareto_model = pkl.load(model_file)
 		model_file.close()
 		Rappture.Utils.progress(20, "Performing optimization algorithm...")
-		pareto_model.optimize_paused(literal_eval(new_result))
+		pareto_model.optimize_paused(new_result)
 		response = pareto_model.response
+		pareto_data = pareto_model.get_pareto_data()
 		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
 		pkl.dump(pareto_model, model_file, pkl.HIGHEST_PROTOCOL)
@@ -261,6 +271,18 @@ io['output.string(new_design).current'] = new_design
 # save output value for output.image(pareto_front)
 # data should be base64-encoded image data
 io['output.image(pareto_front).current'] = imdata
+
+#Pareto plot
+#test data
+if pareto_data is not None:
+	my_log.write('pareto data generated.\n' + str(pareto_data))
+	x = pareto_data[:,0]
+	y = pareto_data[:,1]
+else:
+	x = np.linspace(0,1,5)
+	y = x**2
+
+io['output.curve(scatter).component.xy'] = (x,y)
 
 
 io.close()

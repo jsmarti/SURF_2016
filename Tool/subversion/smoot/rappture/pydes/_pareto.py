@@ -103,6 +103,7 @@ def plot_pareto(Y, ax=None, style='-',
     assert m == 2, 'Only works with 2 objectives.'
     idx = get_idx_of_observed_pareto_front_2d(Y)
     Y = Y[idx, :]
+    pareto_data = Y
     n = Y.shape[0]
     ax.plot([max_obj[0], Y[0, 0]],
             [Y[0, 1], Y[0, 1]], style, color=color, linewidth=linewidth)
@@ -113,7 +114,7 @@ def plot_pareto(Y, ax=None, style='-',
                 linewidth=linewidth)
     ax.plot([Y[-1, 0], Y[-1, 0]],
             [Y[-1, 1], max_obj[1]], style, color=color, linewidth=linewidth)
-    return ax.get_figure(), ax
+    return ax.get_figure(), ax, pareto_data
 
 
 def compute_sorted_list_of_pareto_points(Y, y_ref):
@@ -500,6 +501,9 @@ class ParetoFront(object):
         self.waiting_results = False
         #Response string containing the proposed experiment
         self.response = "Pareto object created"
+        #Pareto data on every iteration
+        self.pareto_data = None
+
         assert X.ndim == 2
         self.X = X
         assert Y.ndim == 2
@@ -1019,6 +1023,11 @@ class ParetoFront(object):
         for it in xrange(self.max_it):
             y, X_design, i = self.propose_experiment(it)
             self.learn(y, X_design, i, it)
+
+    def get_pareto_data(self):
+        idx = get_idx_of_observed_pareto_front_2d(self.Y_p)
+        Y = self.Y_p[idx, :]
+        return Y
 
     def optimize_paused(self, y = None):
         '''Optimization process ending the execution
