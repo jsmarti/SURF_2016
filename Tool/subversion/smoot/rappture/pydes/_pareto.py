@@ -500,8 +500,6 @@ class ParetoFront(object):
         self.waiting_results = False
         #Response string containing the proposed experiment
         self.response = "Pareto object created"
-        #Pareto data on every iteration
-        self.pareto_data = None
 
         assert X.ndim == 2
         self.X = X
@@ -541,6 +539,12 @@ class ParetoFront(object):
         self.get_fig = get_fig
         self.fig_prefix = fig_prefix
         self.Y_true_pareto = Y_true_pareto
+
+        #Initial pareto front from observations
+        self.pareto_data = self.Y_p[self.idx,:]
+        #-1 indicates initial pareto front
+        if self.make_plots:
+            self.plot_status(-1)
 
 
     @property

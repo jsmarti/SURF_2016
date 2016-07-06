@@ -169,7 +169,7 @@ def restart():
 		pass
 
 def new_optimization():
-	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid
+	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid, pareto_data
 	response = None
 	my_log.write('New optimization...\n')
 	if check_observations():
@@ -201,6 +201,7 @@ def new_optimization():
 		my_log.write('Starting optimization algorithm...\n')
 		pareto_model.optimize_paused()
 		response = pareto_model.response
+		pareto_data = pareto_model.get_pareto_data()
 		my_log.write('Optimization finished, saving the model...\n')
 		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
