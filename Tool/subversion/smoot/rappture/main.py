@@ -83,6 +83,9 @@ new_result = io['input.phase(iterative_run).string(new_result).current'].value
 #Pareto data
 pareto_data = None
 
+#X designs
+designs = None
+
 #########################################################
 #  Add your code here for the main body of your program
 #########################################################
@@ -169,7 +172,7 @@ def restart():
 		pass
 
 def new_optimization():
-	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid, pareto_data
+	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid, pareto_data, designs
 	response = None
 	my_log.write('New optimization...\n')
 	if check_observations():
@@ -202,6 +205,7 @@ def new_optimization():
 		pareto_model.optimize_paused()
 		response = pareto_model.response
 		pareto_data = pareto_model.get_pareto_data()
+		designs = pareto_model.get_X_design()
 		my_log.write('Optimization finished, saving the model...\n')
 		Rappture.Utils.progress(60, "Saving the model...")
 		model_file = open('model.obj','wb')
@@ -217,7 +221,7 @@ def new_optimization():
 	return response
 
 def continue_optimization():
-	global finish, pareto_data
+	global finish, pareto_data, designs
 	response = None
 	my_log.write('Continue optimization...\n')
 	if finish:
@@ -236,6 +240,7 @@ def continue_optimization():
 		pareto_model.optimize_paused(new_result)
 		response = pareto_model.response
 		pareto_data = pareto_model.get_pareto_data()
+		designs = pareto_model.get_X_design()
 		my_log.write('Finished optimization, Pareto data available...\n')
 		Rappture.Utils.progress(60, "Saving the model...")
 		my_log.write('Saving the model...\n')
@@ -291,7 +296,12 @@ io['output.image(pareto_front).current'] = imdata
 #Pareto plot
 #test data
 if pareto_data is not None:
-	my_log.write('pareto data generated.\n' + str(pareto_data))
+	my_log.write('Pareto data generated:\n')
+	my_log.write('Front size: ' + str(len(pareto_data)) + '\n')
+	my_log.write('Pareto data: \n' + str(pareto_data) + '\n')
+	my_log.write('X designs: \n')
+	my_log.write('Designs size: ' + str(len(designs)) + '\n')
+	my_log.write('Designs data: \n' + str(designs) + '\n')
 	x = pareto_data[:,0]
 	y = pareto_data[:,1]
 else:

@@ -1034,6 +1034,9 @@ class ParetoFront(object):
         #return Y
         return self.pareto_data
 
+    def get_X_design(self):
+        return self.X_design_paused
+
     def optimize_paused(self, y = None):
         '''Optimization process ending the execution
         at experiment proposal
