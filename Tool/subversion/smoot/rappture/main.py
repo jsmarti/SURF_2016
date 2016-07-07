@@ -310,6 +310,28 @@ else:
 
 io['output.curve(scatter).component.xy'] = (x,y)
 
+#save csv formats for the pareto data and the designs
+line = ''
+if pareto_data is not None:
+	for i in xrange(len(x)):
+		if i == len(x) - 1 :
+			line += str(x[i]) + ',' + str(y[i]) 
+		else:
+			line += str(x[i]) + ',' + str(y[i]) + '\n'
+
+io['output.string(y_pareto).current'] = line
+
+line = ''
+if designs is not None:
+	x_1 = designs[:,0]
+	x_2 = designs[:,1]
+	for i in xrange(len(x_1)):
+		if i == len(x_1) - 1 :
+			line += str(x_1[i]) + ',' + str(x_2[i])
+		else:
+			line += str(x_1[i]) + ',' + str(x_2[i]) + '\n'
+
+io['output.string(x_pareto).current'] = line
 
 io.close()
 my_log.close()

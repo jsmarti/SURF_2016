@@ -137,27 +137,24 @@
 		    	</hotspot>
 		</components>
 	    </drawing>
-	    <boolean id="finish">
-                <about>
-                    <label>Finish executions</label>
-                    <description>Boolean control to finish global execution</description>
-                </about>
-                <default>no</default>
-            </boolean>
-	    <note id="note_step_3">
-                <contents>file://note_step3.html</contents>
-            </note>
-
-
-            <string id="new_result">
-                <about>
-                    <label>New observed value</label>
-                    <description>New observed value after running the experiment at the previous design</description>
-                    <enable>!input.phase(iterative_run).boolean(finish)</enable>
-                </about>
-	    <filetype>.csv</filetype>
-
-            </string>
+			<boolean id="finish">
+					<about>
+						<label>Finish executions</label>
+						<description>Boolean control to finish global execution</description>
+					</about>
+					<default>no</default>
+			</boolean>
+			<note id="note_step_3">
+					<contents>file://note_step3.html</contents>
+			</note>
+			<string id="new_result">
+				<about>
+					<label>New observed value</label>
+					<description>New observed value after running the experiment at the previous design</description>
+					<enable>!input.phase(iterative_run).boolean(finish)</enable>
+				</about>
+				<filetype>.csv</filetype>
+			</string>
         </phase>
     </input>
     <output>
@@ -188,5 +185,17 @@
                 <description>Second objective of the optimization problem</description>
             </yaxis>
         </curve>
+        <string id="y_pareto">
+            <about>
+                <label>Pareto plot (CSV format)</label>
+                <description>CSV format for the generated pareto plot</description>
+            </about>
+        </string>
+        <string id="x_pareto">
+			<about>
+				<label>Designs (CSV format)</label>
+				<description>Designs for the generated Pareto plot</description>
+            </about>
+        </string>
     </output>
 </run>
