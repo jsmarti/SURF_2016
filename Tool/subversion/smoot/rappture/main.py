@@ -196,7 +196,8 @@ def new_optimization():
 		b = literal_eval(u_bounds)
 		a = np.array(a)
 		b = np.array(b)
-		X_design = (b-a)*design.latin_center(1000, 2, seed=314519) + a
+		my_log.write('Dimensionality: ' + str(len(X_init[0])) + '\n')
+		X_design = (b-a)*design.latin_center(1000, len(X_init[0]), seed=314519) + a
 		my_log.write('Creating Pareto model...\n')
 		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
 		my_log.write('Pareto model created...\n')

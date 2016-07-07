@@ -190,12 +190,15 @@
                 <label>Pareto plot (CSV format)</label>
                 <description>CSV format for the generated pareto plot</description>
             </about>
-        </string>
+            <filetype>.csv</filetype>
+	</string>
         <string id="x_pareto">
-			<about>
-				<label>Designs (CSV format)</label>
-				<description>Designs for the generated Pareto plot</description>
+	    <about>
+		<label>Designs (CSV format)</label>
+		<description>Designs for the generated Pareto plot</description>
             </about>
+	    <filetype>.csv</filetype>
         </string>
+	
     </output>
 </run>
