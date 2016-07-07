@@ -22,20 +22,14 @@
             </about>
             <loader>
 				<about>
-					<label>CSV file:</label>
+					<label>CSV files:</label>
 				</about>
 				<upload>
 					<to>input.phase(initial_inputs).string(inputs)</to>
 					<to>input.phase(initial_inputs).string(outputs)</to>
+					<to>input.phase(initial_inputs).string(initial_design)</to>
 				</upload>
 	    </loader>
-	    <boolean id="csv_valid">
-                <about>
-                    <label>CSV file</label>
-                    <description>Boolean control for CSV files as inputs</description>
-                </about>
-                <default>no</default>
-            </boolean>
             <drawing>
 				<background>
 					<width>100</width>
@@ -54,8 +48,10 @@
 					</hotspot>
 					<hotspot>
 						<coords>0.225 0.72</coords>
+						<controls>input.phase(initial_inputs).boolean(bounds)</controls>
 						<controls>input.phase(initial_inputs).string(l_bounds)</controls>
 						<controls>input.phase(initial_inputs).string(u_bounds)</controls>
+						<controls>input.phase(initial_inputs).string(initial_design)</controls>
 					</hotspot>
 					<hotspot>
 						<coords>0.515 0.55</coords>
@@ -84,17 +80,33 @@
                 </about>
                 <filetype>.csv</filetype>
             </string>
+            <boolean id='bounds'>
+				<about>
+					<label>Input bounds:</label>
+					<descriptoin>Enable the control to input upper and lower bounds for the input observations. Otherwise upload a CSV file with desired designs</descriptoin>
+				</about>
+				<default>no</default>
+            </boolean>
             <string id="l_bounds">
                 <about>
                     <label>Lower Input Bounds</label>
                     <description>Lower input bounds</description>
+                    <enable>input.phase(initial_inputs).boolean(bounds)</enable>
                 </about>
             </string>
             <string id="u_bounds">
                 <about>
                     <label>Upper Input Bounds:</label>
                     <description>Upper input bounds</description>
+                    <enable>input.phase(initial_inputs).boolean(bounds)</enable>
                 </about>
+            </string>
+            <string id="initial_design">
+				<about>
+					<label>Initial Set of Designs</label>
+					<description>Initial set of experimental designs provided as a CSV file</description>
+					<enable>!input.phase(initial_inputs).boolean(bounds)</enable>
+				</about>
             </string>
             <integer id="max_it">
                 <about>

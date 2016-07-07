@@ -45,10 +45,6 @@ io = Rappture.PyXml(sys.argv[1])
 # get input value for input.string(y_in)
 #y_in = io['input.string(y_in).current'].value
 
-# get input value for input.phase(initial_inputs).boolean(csv_observations)
-# returns value as string "yes" or "no"
-csv_valid = io['input.phase(initial_inputs).boolean(csv_valid).current'].value == 'yes'
-
 # get input value for input.phase(desc).note(note)
 note = io['input.phase(desc).note(note).current'].value
 
@@ -60,6 +56,12 @@ inputs = io['input.phase(initial_inputs).string(inputs).current'].value
 
 # get input value for input.phase(initial_inputs).string(outputs)
 outputs = io['input.phase(initial_inputs).string(outputs).current'].value
+
+#get initial designs from input.phase(initial_inputs).string(initial_design)
+initial_designs = io['input.phase(initial_inputs).string(initial_design).current'].value
+
+#get control for input bounds or design file
+bounds = io['input.phase(initial_inputs).boolean(bounds).current'].value == 'yes'
 
 # get input value for input.phase(initial_inputs).string(l_bounds)
 l_bounds = io['input.phase(initial_inputs).string(l_bounds).current'].value
@@ -83,8 +85,15 @@ new_result = io['input.phase(iterative_run).string(new_result).current'].value
 #Pareto data
 pareto_data = None
 
-#X designs
+#proposed X designs
 designs = None
+
+#Initial list of observations
+x_datalist=[]
+y_datalist=[]
+
+#Initial X designs proposed by the user
+initial_x_designs = []
 
 #########################################################
 #  Add your code here for the main body of your program
@@ -94,7 +103,24 @@ designs = None
 # My methods
 ########################################################
 
-def format_csv_files():
+def check_bounds():
+	'''Checks if bounds were input by the user or a set of designs was uploaded'''
+	global initial_x_designs, bounds
+	
+	if not bounds:
+		x_designstr = list(initial_designs.split('\n'))
+		for i in range(len(x_designstr)):
+			initial_x_designs.append(map(float,x_designstr[i].split(',')))
+		
+		initial_x_designs = np.array(initial_x_designs)
+		return True
+	else:
+		check_l_bounds = isinstance(literal_eval(l_bounds), tuple)
+		check_u_bounds = isinstance(literal_eval(u_bounds), tuple)
+		return check_l_bounds and check_u_bounds
+
+def format_csv_observation_files():
+	'''Formats csv observation files'''
 	global inputs, outputs, x_datalist, y_datalist
 
 	x_datastr=list(inputs.split('\n'))
@@ -107,6 +133,7 @@ def format_csv_files():
 
 	x_datalist = tuple(x_datalist)
 	y_datalist = tuple(y_datalist)
+	
 
 def format_csv_file_new_result():
 	'''
@@ -122,28 +149,14 @@ def check_observations():
 	format
 	'''
 	my_log.write('Checking observations\n')
-	global inputs, outputs, l_bounds, u_bounds, max_it, csv_valid
+	global inputs, outputs, max_it
 	try:
-		if csv_valid:
-			try:
-				format_csv_files()
-				check_inputs = True
-				check_outputs = True
-			except Exception, e:
-				my_log.write(str(e))
-				check_inputs = False
-				check_outputs = False
-		else:
-			check_inputs = isinstance(literal_eval(inputs), tuple)
-			check_outputs = isinstance(literal_eval(outputs), tuple)
-
-		check_l_bounds = isinstance(literal_eval(l_bounds), tuple)
-		check_u_bounds = isinstance(literal_eval(u_bounds), tuple)
+		format_csv_observation_files()
+		check_bounds_or_design = check_bounds()			
 		check_max_it = isinstance(max_it,int)
 
-		check = check_inputs and check_outputs and check_l_bounds and check_u_bounds and check_max_it
-
-		return check
+		return check_bounds_or_design and check_max_it
+		
 	except Exception, e:
 		my_log.write(str(e))
 		return False
@@ -172,7 +185,7 @@ def restart():
 		pass
 
 def new_optimization():
-	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid, pareto_data, designs
+	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid, pareto_data, designs, bounds, initial_x_designs
 	response = None
 	my_log.write('New optimization...\n')
 	if check_observations():
@@ -182,22 +195,21 @@ def new_optimization():
 			shutil.rmtree(out_dir)
 		os.makedirs(out_dir)
 
-		if csv_valid:
-			X_init = x_datalist
-			Y_init = y_datalist
+		X_init = np.array(x_datalist)
+		Y_init = np.array(y_datalist)
+
+		if bounds:	
+			my_log.write('Bounds given...\n')
+			a = literal_eval(l_bounds)
+			b = literal_eval(u_bounds)
+			a = np.array(a)
+			b = np.array(b)
+			X_design = (b-a)*design.latin_center(1000, len(X_init[0]), seed=314519) + a
 		else:
-			X_init = literal_eval(inputs)
-			Y_init = literal_eval(outputs)
-
-		X_init = np.array(X_init)
-		Y_init = np.array(Y_init)
-
-		a = literal_eval(l_bounds)
-		b = literal_eval(u_bounds)
-		a = np.array(a)
-		b = np.array(b)
+			my_log.write('Initial designs given:\n' + str(initial_x_designs) + '\n')
+			X_design = initial_x_designs
+			
 		my_log.write('Dimensionality: ' + str(len(X_init[0])) + '\n')
-		X_design = (b-a)*design.latin_center(1000, len(X_init[0]), seed=314519) + a
 		my_log.write('Creating Pareto model...\n')
 		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
 		my_log.write('Pareto model created...\n')
@@ -256,12 +268,9 @@ def continue_optimization():
 
 	return response
 
-#Check for a previous state of the program
-
-x_datalist=[]
-y_datalist=[]
 my_log.write('Start...\n')
 Rappture.Utils.progress(0, "Starting...")
+#Check for a previous state of the program
 if not existing_model():
 	new_design = new_optimization()
 else:
