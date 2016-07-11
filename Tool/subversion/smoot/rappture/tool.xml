@@ -43,18 +43,18 @@
 						<contents>file://black_box_2.png</contents>
 					</picture>
 					<hotspot>
-						<coords>0.225 0.41</coords>
+						<coords>0.3 0.43</coords>
 						<controls>input.phase(initial_inputs).string(inputs)</controls>
 					</hotspot>
 					<hotspot>
-						<coords>0.225 0.72</coords>
+						<coords>0.3 0.7</coords>
 						<controls>input.phase(initial_inputs).boolean(bounds)</controls>
 						<controls>input.phase(initial_inputs).string(l_bounds)</controls>
 						<controls>input.phase(initial_inputs).string(u_bounds)</controls>
 						<controls>input.phase(initial_inputs).string(initial_design)</controls>
 					</hotspot>
 					<hotspot>
-						<coords>0.515 0.55</coords>
+						<coords>0.54 0.55</coords>
 						<controls>input.phase(initial_inputs).integer(max_it)</controls>
 					</hotspot>
 					<hotspot>

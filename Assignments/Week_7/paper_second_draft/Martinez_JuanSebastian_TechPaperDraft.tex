@@ -246,15 +246,22 @@ Figure~\ref{fronts} shows the Pareto fronts for the two test cases at the first 
 
 \section{Discussion}
 
+The results shown in figure \ref{fronts} demostrate how the method is able to discover the Pareto front through an iterative process. As also shown in \cite{Huang2006}, it reinforces the usage of Gaussian process regression surrogates to extend the EGO algorithm, along with other extensions (the usage of newly developed EI due to its efficiency \cite{Jones1998}) to succesfully solve the optimization problem under uncertainty.\\
+
 Figure \ref{li_initial} shows how few initial observations generate a not very significant Pareto front, although its points are close to the ideal curve. On the other hand, figure \ref{hi_intial} shows that a bigger amount of observations generate a more accurate set up, as there is more information available to generate a better posterior for the surrogates of the model.\\
 
 Figures \ref{li_final} and \ref{hi_final} show how the number of initial observations has a significant impact on the required number of iterations for a sufficient solution. Considering that both cases produce a similar Pareto front, the figures illustrate that few initial observations require the double amount of iterations, compared to the case of high initial data. This result can be taken as a consideration at the time of gathering initial experimental data, it can be said that more observations produce better results with less iterations. This is a consequence of the Bayesian inference used to handle the problem, as a bigger amount of information reduces uncertainty in the Gaussian process surrogates and enables more accurate models, which represent the objective functions being optimized.\\
 
-This result has to be interpreted carefully, as the methodology proposed aims to solve optimization problems for expensive experiments or simulation codes, so gathering a big amount of initial observations can have a very high cost, which is contrary to the goal of this study. In this context, as long as it is reasonable, it is recommended that a high amount of initial data is entered to the tool to generate better results in a short time.
+This result has to be interpreted carefully, as the methodology proposed aims to solve optimization problems for expensive experiments or simulation codes, so gathering a big amount of initial observations can have a very high cost, which is contrary to the goal of this study. In this context, as long as it is reasonable, it is recommended that a high amount of initial data is entered to the tool to generate better results in a short time.\\
+
+Considering the tool performance, the simulation times changed differently with every iteration, in general, for the synthetic two-dimensional example, all iterations finished with times lower than 10 minutes. This is a favorable result, as there is a high probability that the real experiment being studied for which the tool is being used can have experiments that last hours or even days.
 
 \section{Conclusions}
 
-Throughout the process, the appliance of Gaussian process regressions to build surrogates for objective functions proved to be an effective choice for handling uncertainty in black box systems. The methodology was proven to be correct with synthetic and real examples, building accurate Pareto fronts for the cases where it could be constructed. This fronts showed that the Gaussian process surrogates correctly describe the objectives and enable the optimization process to be performed with uncertain data.
+Throughout the process, the appliance of Gaussian process regressions to build surrogates for objective functions proved to be an effective choice for handling uncertainty in black box systems. The methodology was proven to be correct with synthetic and real examples, building accurate Pareto fronts for the cases where it could be constructed. This fronts showed that the Gaussian process surrogates correctly describe the objectives and enable the optimization process to be performed with uncertain data.\\
+
+The tool created was useful in the sense that it allows experimentalists to obtain an optimal set of designs to apply in their experiments, with no extra costs or inefficient use of resources. The simulation times of the optimization algorithm are reasonable compared to the time-consuming simulation codes or experiments for whom the tool was built.
+
 
 \bibliographystyle{ieeetr}
 \bibliography{SURF_2016}
