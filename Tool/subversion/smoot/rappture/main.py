@@ -10,7 +10,6 @@ import base64
 from ast import literal_eval
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import design
 import matplotlib
 matplotlib.use('PS')
@@ -85,6 +84,9 @@ new_result = io['input.phase(iterative_run).string(new_result).current'].value
 #Pareto data
 pareto_data = None
 
+#Variable to plot fronts
+mk_plots = False
+
 #proposed X designs
 designs = None
 
@@ -94,6 +96,9 @@ y_datalist=[]
 
 #Initial X designs proposed by the user
 initial_x_designs = []
+
+#Path to python wrapper
+wrapper_path = os.path.dirname(__file__)
 
 #########################################################
 #  Add your code here for the main body of your program
@@ -179,13 +184,15 @@ def existing_model():
 def restart():
 	'''Restarts the program'''
 	try:
-		os.system('rm model.obj')
-		os.system('rm -rf surf_test_results_noisy_moo/')
+		os.remove('model.obj')
+		shutil.rmtree('surf_test_results_noisy_moo/')
+		#os.system('rm model.obj')
+		#os.system('rm -rf surf_test_results_noisy_moo/')
 	except:
 		pass
 
 def new_optimization():
-	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid, pareto_data, designs, bounds, initial_x_designs
+	global inputs, outputs, l_bounds, u_bounds, max_it, x_datalist, y_datalist, csv_valid, pareto_data, designs, bounds, initial_x_designs, mk_plots
 	response = None
 	my_log.write('New optimization...\n')
 	if check_observations():
@@ -209,9 +216,16 @@ def new_optimization():
 			my_log.write('Initial designs given:\n' + str(initial_x_designs) + '\n')
 			X_design = initial_x_designs
 			
-		my_log.write('Dimensionality: ' + str(len(X_init[0])) + '\n')
+		my_log.write('Dimensionality of X: ' + str(len(X_init[0])) + '\n')
+		my_log.write('Dimensionality of Y: ' + str(len(Y_init[0])) + '\n')
+		
+		if len(Y_init[0]) <= 2:
+			mk_plots = True
+		else:
+			mk_plots = False	
+		
 		my_log.write('Creating Pareto model...\n')
-		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=True, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
+		pareto_model = ParetoFront(X_init, Y_init, X_design=X_design, gp_opt_num_restarts=50, verbose=False, max_it=max_it, make_plots=mk_plots, add_at_least=30, get_fig=get_full_fig, fig_prefix=os.path.join(out_dir,'ex1'), Y_true_pareto=None, gp_fixed_noise=None, samp=100, denoised=True)
 		my_log.write('Pareto model created...\n')
 		Rappture.Utils.progress(20, "Performing optimization algorithm...")
 		my_log.write('Starting optimization algorithm...\n')
@@ -234,7 +248,7 @@ def new_optimization():
 	return response
 
 def continue_optimization():
-	global finish, pareto_data, designs
+	global finish, pareto_data, designs, mk_plots
 	response = None
 	my_log.write('Continue optimization...\n')
 	if finish:
@@ -250,6 +264,7 @@ def continue_optimization():
 		model_file.close()
 		my_log.write('Model loaded, performing optimization...\n')
 		Rappture.Utils.progress(20, "Performing optimization algorithm...")
+		mk_plots = pareto_model.make_plots
 		pareto_model.optimize_paused(new_result)
 		response = pareto_model.response
 		pareto_data = pareto_model.get_pareto_data()
@@ -278,16 +293,17 @@ else:
 
 #Pareto front
 path = 'surf_test_results_noisy_moo/'
+no_pareto_path = os.path.join(wrapper_path,'no_pareto.png')
 try:
 	fronts = [front for front in os.listdir(path) if front.endswith('.png')]
 	if len(fronts) == 0:
-		image_path = 'no_pareto.png'
+		image_path = no_pareto_path
 	else:
 		fronts.sort()
 		last_front = fronts[len(fronts) - 1]
 		image_path = path + last_front
 except:
-	image_path = 'no_pareto.png'
+	image_path = no_pareto_path
 
 with open(image_path,'rb') as img:
 	imdata = base64.b64encode(img.read())
@@ -305,7 +321,7 @@ io['output.image(pareto_front).current'] = imdata
 
 #Pareto plot
 #test data
-if pareto_data is not None:
+if pareto_data is not None and mk_plots:
 	my_log.write('Pareto data generated:\n')
 	my_log.write('Front size: ' + str(len(pareto_data)) + '\n')
 	my_log.write('Pareto data: \n' + str(pareto_data) + '\n')
@@ -323,23 +339,24 @@ io['output.curve(scatter).component.xy'] = (x,y)
 #save csv formats for the pareto data and the designs
 line = ''
 if pareto_data is not None:
-	for i in xrange(len(x)):
-		if i == len(x) - 1 :
-			line += str(x[i]) + ',' + str(y[i]) 
+	
+	for i, data in enumerate(pareto_data):
+		csv_line = ','.join(map(str,pareto_data[i]))
+		if i == len(pareto_data)-1:
+			line += csv_line 
 		else:
-			line += str(x[i]) + ',' + str(y[i]) + '\n'
+			line += csv_line + '\n'
 
 io['output.string(y_pareto).current'] = line
 
 line = ''
 if designs is not None:
-	x_1 = designs[:,0]
-	x_2 = designs[:,1]
-	for i in xrange(len(x_1)):
-		if i == len(x_1) - 1 :
-			line += str(x_1[i]) + ',' + str(x_2[i])
+	for i, data in enumerate(designs):
+		csv_line = ','.join(map(str,designs[i]))
+		if i == len(designs)-1:
+			line += csv_line
 		else:
-			line += str(x_1[i]) + ',' + str(x_2[i]) + '\n'
+			line += csv_line + '\n'
 
 io['output.string(x_pareto).current'] = line
 

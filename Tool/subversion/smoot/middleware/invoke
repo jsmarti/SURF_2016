@@ -1,3 +1,5 @@
 #!/bin/sh
 
-/usr/bin/invoke_app "$@" -C rappture -t smoot
+/usr/bin/invoke_app "$@" -C rappture -t smoot \
+                         -u dill-0.2.5 \
+                         -u anaconda-2.5.0

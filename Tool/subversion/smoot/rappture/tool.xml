@@ -199,8 +199,8 @@
         </curve>
         <string id="y_pareto">
             <about>
-                <label>Pareto plot (CSV format)</label>
-                <description>CSV format for the generated pareto plot</description>
+                <label>Pareto Objectives (CSV format)</label>
+                <description>CSV format for the generated pareto optimal objective values</description>
             </about>
             <filetype>.csv</filetype>
 	</string>

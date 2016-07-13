@@ -69,7 +69,7 @@ if __name__ == '__main__':
     if sys.argv[2].isdigit():
         x = design.latin_center(sys.argv[2],2)
         x_string_array = str(x).split('\n')
-        inp = open('x.csv','wb')
+        inp = open('x_2.csv','wb')
         for i, string in enumerate(x_string_array):
             n_string = string.replace('[','')
             n_string = n_string.replace(']','')
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         print 'the inputs are'+ str(x)
         y = np.array([obj_funcs_noise(x) for x in x])
 
-        out = open('y.csv','wb')
+        out = open('y_2.csv','wb')
         for i, data in enumerate(y):
             if i < len(y) - 1:
                 out.write(str(data[0]) + ',' + str(data[1]) + '\n')
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         out.close()
 
         #Open everything
-        inp = open('x.csv','rb')
+        inp = open('x_2.csv','rb')
         line = inp.read()
         x_data = list(line.split('\n'))
         data_list = []
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         t = tuple(data_list)
         print t
 
-        out = open('y.csv','rb')
+        out = open('y_2.csv','rb')
         line = out.read()
         y_data = list(line.split('\n'))
         data_list = []

@@ -963,7 +963,7 @@ class ParetoFront(object):
         if not isinstance(self.X_design, int):
             self.X_design = np.delete(self.X_design, i, 0)
         if self.make_plots:
-            if it==(self.max_it-1):
+            if it==(self.max_it-1) or len(self.X_design_paused) == 1:
                 self.plot_status(it,final=True)
             else:
                 self.plot_status(it)
@@ -1051,7 +1051,7 @@ class ParetoFront(object):
             self.learn(y, self.X_design_paused, self.i_paused, self.current_iteration)
             self.current_iteration += 1
             self.waiting_results = False
-            if self.current_iteration == self.max_it:
+            if self.current_iteration == self.max_it or len(self.X_design_paused) == 1:
                 self.response = 'Execution finished, Pareto front completed'
             else:
                 self.propose_experiment_paused(self.current_iteration)
