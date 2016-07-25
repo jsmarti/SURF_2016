@@ -251,24 +251,29 @@ Figure~\ref{fronts} shows the Pareto fronts for the two test cases at the first 
 
 A CVD process was studied to analyze the optimization methodology with real observations from a real experiment. The process takes place in a chamber where different gases with different concentrations turn into plasma to build graphene structures over a copper foil. In this procedure, the Raman spectrum of the foil is used to analyze vibrational properties of the layers of graphene that are deposited from the process. The G/D ratio observed in this spectrum is a variable to be maximized.
 
-In this example, the concentration of the different gases that are pumped inside the chamber constitute a set of seven input variables; and the G/D ratios of the Raman spectrum for the left and right side of the copper foil constitute a set of two output variables to be maximized. For the test case, 33 observations of different concentrations and output G/D ratios were taken, from which 15 were used as initial observations for the tool and 18 were used as experimental designs to perform. The tool selected the optimal designs from the given set of designs and the corresponding results of each experiment where given to the algorithm for the iterative process to continue.
+This experiment is a very expensive procedure that can't be repeated a large number of times, this is why only few observations where available and there is a certain degree of uncertainty in the input variables. Also, the process is a novel technique for manufacturing layers of graphene, so the system is treated as a black-box, as its physical behaviour is not well know. This situation describes a perfect example for the usage of the methodology developed in this study.
+
+In this example, the concentration of the different gases that are pumped inside the chamber constitute a set of seven input variables; and the G/D ratios of the Raman spectrum for the left and right side of the copper foil constitute a set of two output variables to be maximized. For the test case, 33 observations of different concentrations and output G/D ratios were taken, from which 15 were used as initial observations for the tool and 18 were used as experimental designs to perform. The tool selected the optimal designs from the given set of designs and the corresponding results of each experiment where given to the algorithm for the iterative process to continue. Figures \ref{cvd_pareto} and \ref{cvd_results} show the constructed Pareto front of the process and the chosen optimal outputs from the set of 33 real observations.
 
 \begin{figure}[!t]
 \centering
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{ParetoFrontImage.jpg}
-        \caption{Final Pareto front for CVD process}
-        \label{pareto_cvd}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Cu_foil_pareto}
-        \caption{Optimal ouputs for CVD process}
-        \label{optimal_cvd}
-    \end{subfigure}
-\caption{CAPTION}
-\label{fronts}
+    \includegraphics[width=0.6\textwidth]{ParetoFrontImage}
+    \caption{Final Pareto front for the CVD process}
+    \label{pareto_cvd}
+\label{cvd_pareto}
 \end{figure}
+
+In figure \ref{cvd_pareto}, a set of 3 designs where chosen by the algorithm as the set of optimal experiments, whose outputs projected into the GP regressions form the Pareto front of the modeled problem showed in the graph. In this figure, the output variables had their sign inverted, as the algoirithm solves a minimization problem and an maximization of a variable can be interpreted as the minimization of the negative of the variable.
+
+\begin{figure}[!t]
+\centering
+    \includegraphics[width=0.8\textwidth]{Cu_foil_pareto}
+    \caption{Optimal ouputs for the CVD process}
+    \label{optimal_cvd}
+\label{cvd_results}
+\end{figure}
+
+Figure \ref{cvd_results} plots the two objectives for all the 33 observations along with the points corresponding to the 3 chosen experimental designs as the optimal designs, which corresponds to the real Pareto front in the real objective space.
 
 \section{Discussion}
 
@@ -282,18 +287,18 @@ This result has to be interpreted carefully, as the methodology proposed aims to
 
 Considering the tool performance, the simulation times changed differently with every iteration, in general, for the synthetic two-dimensional example, all iterations finished with times lower than 10 minutes. This is a favorable result, as there is a high probability that the real experiment being studied for which the tool is being used can have experiments that last hours or even days.
 
+For the case of the CVD process, figure \ref{cvd_pareto}
+
 \section{Conclusions}
 
 Throughout the process, the appliance of Gaussian process regressions to build surrogates for objective functions proved to be an effective choice for handling uncertainty in black box systems. The methodology was proven to be correct with synthetic and real examples, building accurate Pareto fronts for the cases where it could be constructed. This fronts showed that the Gaussian process surrogates correctly describe the objectives and enable the optimization process to be performed with uncertain data.
 
 The tool created was useful in the sense that it allows experimentalists to obtain an optimal set of designs to apply in their experiments, with no extra costs or inefficient use of resources. The simulation times of the optimization algorithm are reasonable compared to the time-consuming simulation codes or experiments for whom the tool was built.
 
+\subsubsection*{Acknowledgments}
+Acknowledgments
 
 \bibliographystyle{ieeetr}
 \bibliography{SURF_2016}
-
-\section{Mentor Check}
-
-The paper was reviewed by the corresponding mentor, who only made grammar and syntax corrections. He agreed that the contents in the sections were accurate and well described for the purpose of the study. Results of real life applications are still missing due to the lack of data we need, we are waiting for the collaborating group to provide the necessary data for this purpose. The discussion and conclusion sections will be completed as soon as this data is available.
 
 \end{document}
