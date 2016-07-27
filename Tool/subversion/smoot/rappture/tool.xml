@@ -43,11 +43,11 @@
 						<contents>file://black_box_2.png</contents>
 					</picture>
 					<hotspot>
-						<coords>0.3 0.43</coords>
+						<coords>0.31 0.43</coords>
 						<controls>input.phase(initial_inputs).string(inputs)</controls>
 					</hotspot>
 					<hotspot>
-						<coords>0.3 0.7</coords>
+						<coords>0.31 0.7</coords>
 						<controls>input.phase(initial_inputs).boolean(bounds)</controls>
 						<controls>input.phase(initial_inputs).string(l_bounds)</controls>
 						<controls>input.phase(initial_inputs).string(u_bounds)</controls>
@@ -103,8 +103,8 @@
             </string>
             <string id="initial_design">
 				<about>
-					<label>Initial Set of Designs</label>
-					<description>Initial set of experimental designs provided as a CSV file</description>
+					<label>Desired Set of Designs</label>
+					<description>Desired set of experimental designs provided as a CSV file</description>
 					<enable>!input.phase(initial_inputs).boolean(bounds)</enable>
 				</about>
             </string>

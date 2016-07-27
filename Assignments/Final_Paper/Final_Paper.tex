@@ -76,7 +76,7 @@
 \maketitle
 
 \begin{abstract}
-    Global optimization of expensive, multi-modal and noisy multi-objective functions is a common problem that comes up frequently in various areas of computational and experimental research. Along with being expensive to evaluate and noisy, we are also particularly interested in cases where the objective function under consideration is a black box and does not provide gradient information of the quantity of interest (QoI) with reference to the inputs. Because of the high cost of every single evaluation of such objective functions, we can only obtain a limited number of evaluations. This necessarily induces epistemic uncertainty (lack of knowledge due to limited data) on our problem. The Bayesian approach provides a natural framework to tackle this problem, building Gaussian process surrogates that model the objective functions and allow a sequential optimization process. The method applies the expected improvement (EI) information acquisition function in each iteration to perform an efficient global optimization (EGO) and discover the Pareto front of the problem, which contains the set of optimal solutions of the objectives. We implemented this method in a NanoHUB tool and tested it with synthetic examples and real observations of an expensive experiment, where it proved to be efficient in finding the corresponding set of optimal solutions for each problem. This methodology demonstrates how the efficiency of the Bayesian approach for handling epistemic uncertainty in multi-objective optimization problems, dealing with limited observations and avoiding a high amount of evaluations of time-consuming codes or expensive experiments.
+    Multi-objective optimization (MOO) problems arise frequently in science and engineering situations, where a set of multiple quantities of interest (QoI) of a certain system are to be maximized or minimized. The objective of the optimization problem is to find the set of input parameters that generate the set of optimal outputs, mathematically known as the Pareto front. Solving the MOO problem is a challenge for many applications where complex systems are to be optimized, as expensive experiments can be performed only a constrained number of times and there is a limited set of data to work with, e.g, a roll-to-roll microwave plasma chemical vapor deposition (MPCVD) reactor for manufacturing high quality graphene. For this purpose, the current MOO techniques, e.g, evolutionary algorithms, particle swarm optimization, require a large amount of observations and are not applicable. On the other hand, recent extensions of Bayesian global optimization (BGO) are able to tackle the problem, replacing expensive objective functions with surrogates trained with few input-output pairs that are cheap to evaluate. This probabilistic surrogates provide prediction error bars that correspond to the epistemic uncertainty induced by limited data, which quantify the improvement that a hypothetical experiment could contribute to the state of knowledge of the Pareto front in the MOO problem, in order to sequentially select the designs that maximize this enhancement. This work presents the development of a NanoHUB tool that enables experimentalists to use this methodology and the results of its usage with a synthetic example and the MPCVD case.
 \end{abstract}
 
 \section{Introduction}
@@ -100,57 +100,57 @@ The MOO problem of black-box systems was addressed through a Bayesian approach, 
 A Gaussian process (GP) is a collection of random variables, any finite number of which have a joint Gaussian distribution\cite{Seeger2004}. It represents a generalization of a multivariate Gaussian distribution to infinite dimensions, over a space of functions. A GP is defined by its mean function $m(\vec{x})$ and covariance function $k(\vec{x},\vec{x}')$; they are defined for a process $f(\vec{x})$ as:
 
 \begin{equation}
-    m(\vec{x}) = \mathbb{E}[f(\vec{x})],
+    m(\textbf{x}) = \mathbb{E}[f(\textbf{x})],
 \end{equation}
 \begin{equation}
-    k(\vec{x},\vec{x}') = \mathbb{E}[(f(\vec{x})-m(\vec{x}))(f(\vec{x}')-m(\vec{x}'))].
+    k(\textbf{x},\textbf{x}') = \mathbb{E}[(f(\textbf{x})-m(\textbf{x}))(f(\textbf{x}')-m(\textbf{x}'))].
 \end{equation}
 
 Then, the process is defined as a Gaussian process as: \cite{Seeger2004}
 
 \begin{equation}
-    f(\vec{x}) \sim GP(m(\vec{x}), k(\vec{x},\vec{x}')).
+    f(\textbf{x}) \sim GP(m(\textbf{x}), k(\textbf{x},\textbf{x}')).
 \end{equation}
 
-In a more general case, the mean and covariance functions depend on a set of \textit{hyperparameters} denoted by $\vec{\theta}$. Taking this into account, a Gaussian process could be defined as:
+In a more general case, the mean and covariance functions depend on a set of \textit{hyperparameters} denoted by $\boldsymbol \theta$. Taking this into account, a Gaussian process could be defined as:
 
 \begin{equation}
-    f(\cdot)|\vec{\theta} \sim GP(f(\cdot)|m(\cdot;\vec{\theta}),k(\cdot,\cdot;\vec{\theta})).
+    f(\cdot)|\boldsymbol{\theta} \sim GP(f(\cdot)|m(\cdot;\boldsymbol{\theta}),k(\cdot,\cdot;\boldsymbol{\theta})).
 \end{equation}
 
-As for the Bayesian approach taken in this study, a GP was used to model our prior beliefs about the objective functions in the system. In this case, all information about the mean can be included in the covariance function. Thus, $m(\cdot;\vec{\theta})$ was taken to be zero. On the other hand, the covariance function used was the squared exponential (SE) covariance:
+As for the Bayesian approach taken in this study, a GP was used to model our prior beliefs about the objective functions in the system. In this case, all information about the mean can be included in the covariance function. Thus, $m(\cdot;\boldsymbol{\theta})$ was taken to be zero. On the other hand, the covariance function used was the squared exponential (SE) covariance:
 
 \begin{equation}
-    k(\vec{x},\vec{x}';\vec{\theta}) = s^2 \exp \left \{ -\frac{1}{2}\sum_{i=1}^{d}\frac{(x_i - x_i')^2}{\ell_i^2} \right \},
+    k(\textbf{x},\textbf{x}';\boldsymbol{\theta}) = s^2 \exp \left \{ -\frac{1}{2}\sum_{i=1}^{d}\frac{(x_i - x_i')^2}{\ell_i^2} \right \},
 \end{equation}
 
-where $d$ is the dimensionality of the input space, $s > 0$ is the signal strength of the response and $\ell_i > 0$ is the lengthscale along the input dimension $i$. For this case, the set of hyperparameters $\vec{\theta}$ is composed as $\vec{\theta} = \{s, \ell_1, \ldots, \ell_d\}$. This design for the mean function and the covariance function is the same as the approach taken in \cite{Pandita2016}.
+where $d$ is the dimensionality of the input space, $s > 0$ is the signal strength of the response and $\ell_i > 0$ is the lengthscale along the input dimension $i$. For this case, the set of hyperparameters $\boldsymbol{\theta}$ is composed as $\boldsymbol{\theta} = \{s, \ell_1, \ldots, \ell_d\}$. This design for the mean function and the covariance function is the same as the approach taken in \cite{Pandita2016}.
 
 In the Gaussian process regression, noisy and limited observations provide a likelihood of the data subject to the hyperparameters of the model. Assuming a Gaussian noise with unknown variance $\sigma^2$, the likelihood is\cite{Pandita2016}:
 
 \begin{equation}
-    p(\vec{y}_{1:n}|\vec{x}_{1:n}, \vec{\psi}) = \mathcal{N}(\vec{y}_{1:n}|\vec{f}_{1:n},\textbf{K}_n(\vec{\theta}) + \sigma^2\textbf{I}_n).
+    p(\textbf{y}_{1:n}|\textbf{x}_{1:n}, \boldsymbol{\psi}) = \mathcal{N}(\textbf{y}_{1:n}|\textbf{f}_{1:n},\textbf{K}_n(\boldsymbol{\theta}) + \sigma^2\textbf{I}_n).
     \label{likelihood}
 \end{equation}
 
-As expressed in equation \ref{likelihood}, the likelihood has the PDF of a multivariate normal random variable with mean $\vec{f}_{1:n}$ and covariance matrix $\textbf{K}_n(\vec{\theta}) + \sigma^2\textbf{I}_n$, where $\textbf{I}_n \in \mathbb{R}^{n\times n}$ is the identity matrix, $\vec{\psi} = \{ \vec{\theta}, \sigma \} $ and $\textbf{K}_n \in \mathbb{R}^{n\times n}$ is the covariance matrix of the form:
+As expressed in equation \ref{likelihood}, the likelihood has the PDF of a multivariate normal random variable with mean $\textbf{f}_{1:n}$ and covariance matrix $\textbf{K}_n(\boldsymbol{\theta}) + \sigma^2\textbf{I}_n$, where $\textbf{I}_n \in \mathbb{R}^{n\times n}$ is the identity matrix, $\boldsymbol{\psi} = \{ \boldsymbol{\theta}, \sigma \} $ and $\textbf{K}_n \in \mathbb{R}^{n\times n}$ is the covariance matrix of the form:
 
 \begin{equation}
-    \textbf{K}_n(\vec{\theta}) =
+    \textbf{K}_n(\boldsymbol{\theta}) =
     \begin{bmatrix}
-        k(\vec{x}_1,\vec{x}_1;\vec{\theta}) & \cdots & k(\vec{x}_1,\vec{x}_n;\vec{\theta}) \\
+        k(\textbf{x}_1,\textbf{x}_1;\boldsymbol{\theta}) & \cdots & k(\textbf{x}_1,\textbf{x}_n;\boldsymbol{\theta}) \\
         \vdots & \ddots & \vdots\\
-        k(\vec{x}_n,\vec{x}_1;\vec{\theta}) & \cdots & k(\vec{x}_n,\vec{x}_n;\vec{\theta})
+        k(\textbf{x}_n,\textbf{x}_1;\boldsymbol{\theta}) & \cdots & k(\textbf{x}_n,\textbf{x}_n;\boldsymbol{\theta})
     \end{bmatrix}.
 \end{equation}
 
 Through Bayes rule, combining the prior beliefs and the likelihood of observed data produces a posterior distribution of the function space that represents our model. This distribution is described as\cite{Pandita2016}:
 
 \begin{equation}
-    p(f(\cdot)|\vec{x}_{1:n},\vec{y}_{1:n},\vec{\psi}) = GP(f(\cdot)|m_n(\vec{x};\vec{\psi}),k_n(\vec{x},\vec{x}';\vec{\psi})),
+    p(f(\cdot)|\textbf{x}_{1:n},\textbf{y}_{1:n},\boldsymbol{\psi}) = GP(f(\cdot)|m_n(\textbf{x};\boldsymbol{\psi}),k_n(\textbf{x},\textbf{x}';\boldsymbol{\psi})),
 \end{equation}
 
-where $m_n(\vec{x};\vec{\psi})$ and $k_n(\vec{x},\vec{x}';\vec{\psi})$ are the posterior mean and covariance functions, their analytical expressions can be found in \cite{Pandita2016}. With this in mind, the common procedure to adjust the posterior model is to maximize the logarithm of the likelihood\footnote{Maximizing the likelihood often requires unachievable computational resources, instead, the logarithm of the function has the same behavior and it demands more reasonable computation requirements}, which produces the corresponding hyperparameters that optimize the model.
+where $m_n(\textbf{x};\boldsymbol{\psi})$ and $k_n(\textbf{x},\textbf{x}';\boldsymbol{\psi})$ are the posterior mean and covariance functions, their analytical expressions can be found in \cite{Pandita2016}. With this in mind, the common procedure to adjust the posterior model is to maximize the logarithm of the likelihood\footnote{Maximizing the likelihood often requires unachievable computational resources, instead, the logarithm of the function has the same behavior and it demands more reasonable computation requirements}, which produces the corresponding hyperparameters that optimize the model.
 
 To illustrate this, figure \ref{gp_regression} shows a Gaussian process regression for a cosine function with Gaussian noise added, the regression was built with a signal strength of 1 and a lengthscale of 1 for the 1-dimensional input. The "X" marks represent sample points of the real function and the continuous line represents the mean function of the sampled regression, along with the shaded area that represents the uncertainty of the surrogate. In figure \ref{gp}, only prior information is used to build the regression, but on figure \ref{gp_optimized}, observed data is applied and the posterior is adjusted due to the maximization of the likelihood of data. As we can see, uncertainty is reduced around the observed data but increases around isolated data points or where there are no observations.
 
